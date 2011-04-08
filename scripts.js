@@ -1,10 +1,10 @@
 const DEFAULT_WIDTH = 480;
 const DEFAULT_HEIGHT = 480;
-const DEFAULT_SCALE = Math.sqrt(4);
+const DEFAULT_MAX_NORM = 2; // sqrt(4): euclidean distance from origin to hypercube corner
 
 hypercube = {};
 
-hypercube.vertices =
+hypercube.vertices = // Begin with an unrotated unit hypercube
 [
   { x:  1, y:  1, z:  1, w:  1 },
   { x:  1, y:  1, z:  1, w: -1 },
@@ -24,7 +24,7 @@ hypercube.vertices =
   { x: -1, y: -1, z: -1, w: -1 }
 ];
 
-hypercube.edges = 
+hypercube.edges = // Repeated connections have been removed
 [
   [  0,  1 ], [  0,  2 ], [  0,  4 ], [  0,  8 ],
               [  1,  3 ], [  1,  5 ], [  1,  9 ],
@@ -43,53 +43,53 @@ hypercube.edges =
                                       [ 14, 15 ]
 ];
 
-hypercube.rotate = function(axis, theta)
+hypercube.rotate = function(axis, theta) // sin and cos precomputed for efficiency
 {
   var s = Math.sin(theta);
   var c = Math.cos(theta);
   for (i in this.vertices)
   {
-    this.rotateVertex[axis](i, s, c);
+    this.rotateVertex[axis](this.vertices[i], s, c);
   }
-}
+};
 
-hypercube.rotateVertex =
+hypercube.rotateVertex = // Multiplication by vector rotation matrices of dimension 4
 {
-  xy: function(i, s, c)
+  xy: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].x + s * hypercube.vertices[i].y;
-    hypercube.vertices[i].y = -s * hypercube.vertices[i].x + c * hypercube.vertices[i].y;
-    hypercube.vertices[i].x = tmp;
+    tmp = c * v.x + s * v.y;
+    v.y = -s * v.x + c * v.y;
+    v.x = tmp;
   },
-  xz: function(i, s, c)
+  xz: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].x + s * hypercube.vertices[i].z;
-    hypercube.vertices[i].z = -s * hypercube.vertices[i].x + c * hypercube.vertices[i].z;
-    hypercube.vertices[i].x = tmp;
+    tmp = c * v.x + s * v.z;
+    v.z = -s * v.x + c * v.z;
+    v.x = tmp;
   },
-  xw: function(i, s, c)
+  xw: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].x + s * hypercube.vertices[i].w;
-    hypercube.vertices[i].w = -s * hypercube.vertices[i].x + c * hypercube.vertices[i].w;
-    hypercube.vertices[i].x = tmp;
+    tmp = c * v.x + s * v.w;
+    v.w = -s * v.x + c * v.w;
+    v.x = tmp;
   },
-  yz: function(i, s, c)
+  yz: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].y + s * hypercube.vertices[i].z;
-    hypercube.vertices[i].z = -s * hypercube.vertices[i].y + c * hypercube.vertices[i].z;
-    hypercube.vertices[i].y = tmp;
+    tmp = c * v.y + s * v.z;
+    v.z = -s * v.y + c * v.z;
+    v.y = tmp;
   },
-  yw: function(i, s, c)
+  yw: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].y - s * hypercube.vertices[i].w;
-    hypercube.vertices[i].w = s * hypercube.vertices[i].y + c * hypercube.vertices[i].w;
-    hypercube.vertices[i].y = tmp;
+    tmp = c * v.y - s * v.w;
+    v.w = s * v.y + c * v.w;
+    v.y = tmp;
   },
-  zw: function(i, s, c)
+  zw: function(v, s, c)
   {
-    tmp = c * hypercube.vertices[i].z - s * hypercube.vertices[i].w;
-    hypercube.vertices[i].w = s * hypercube.vertices[i].z + c * hypercube.vertices[i].w;
-    hypercube.vertices[i].z = tmp;
+    tmp = c * v.z - s * v.w;
+    v.w = s * v.z + c * v.w;
+    v.z = tmp;
   }
 };
 
@@ -106,7 +106,7 @@ function init()
 
   canvas.width = DEFAULT_WIDTH;
   canvas.height = DEFAULT_HEIGHT;
-  canvas.scale = DEFAULT_SCALE;
+  canvas.maxNorm = DEFAULT_MAX_NORM; // This value can be spoofed to affect scaling
 
   /* End declared variables. */
 
@@ -119,19 +119,21 @@ function init()
     var bound = Math.min(canvas.width, canvas.height) / 2;
     for (i in hypercube.edges)
     {
-      var x1 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][0]].x / this.scale)) + 0.5;
-      var x2 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][1]].x / this.scale)) + 0.5;
-      var y1 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][0]].y / this.scale)) + 0.5;
-      var y2 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][1]].y / this.scale)) + 0.5;
-      var z1 = 0.60 + .40 * hypercube.vertices[hypercube.edges[i][0]].z / this.scale;
-      var z2 = 0.60 + .40 * hypercube.vertices[hypercube.edges[i][1]].z / this.scale;
+      var x1 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][0]].x / this.maxNorm)) + 0.5;
+      var x2 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][1]].x / this.maxNorm)) + 0.5;
+      var y1 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][0]].y / this.maxNorm)) + 0.5;
+      var y2 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][1]].y / this.maxNorm)) + 0.5;
+      var z1 = 0.60 + 0.40 * hypercube.vertices[hypercube.edges[i][0]].z / this.maxNorm;
+      var z2 = 0.60 + 0.40 * hypercube.vertices[hypercube.edges[i][1]].z / this.maxNorm;
+      var w1 = 191 + Math.floor(64 * hypercube.vertices[hypercube.edges[i][0]].w / this.maxNorm);
+      var w2 = 191 + Math.floor(64 * hypercube.vertices[hypercube.edges[i][1]].w / this.maxNorm);
       context.beginPath();
       context.moveTo(x1, y1);
       context.lineTo(x2, y2);
       context.closePath();
-      var gradient = context.createLinearGradient(x1, y1, x2, y2);
-      gradient.addColorStop(0, 'rgba(0, 172, 255, ' + z1 + ')');
-      gradient.addColorStop(1, 'rgba(0, 172, 255, ' + z2 + ')');
+      var gradient = context.createLinearGradient(x1, y1, x2, y2); // Distance fade effect
+      gradient.addColorStop(0, 'rgba(0, 191, ' + w1 + ', ' + z1 + ')');
+      gradient.addColorStop(1, 'rgba(0, 191, ' + w2 + ', ' + z2 + ')');
       context.lineWidth = 3;
       context.strokeStyle = gradient;
       context.stroke();
@@ -167,11 +169,12 @@ function init()
 
     if (e.shiftKey && e.altKey)
     {
-      hypercube.rotate('xy', Math.PI * motion.x / bound);
+      hypercube.rotate('xy', Math.PI * motion.x / bound); // Full canvas drag ~ 2*PI
       hypercube.rotate('zw', Math.PI * motion.y / bound);
     }
     else if (e.shiftKey)
     {
+      // Interpretation of this rotation varies between left- and right- brained users
       hypercube.rotate('xw', Math.PI * motion.x / bound);
       hypercube.rotate('yw', Math.PI * motion.y / bound);
     }
@@ -195,10 +198,10 @@ function init()
 
   /* Begin initial actions. */
 
-  hypercube.rotate('zw', Math.PI/4); // weird bug with gradients doesn't allow lines to be stacked...
-  hypercube.rotate('yw', Math.PI/4); // weird bug with gradients doesn't allow lines to be stacked...
-  hypercube.rotate('xz', Math.PI/4); // weird bug with gradients doesn't allow lines to be stacked...
-
+  // Weird bug with gradients doesn't allow identical lines to be stacked...
+  hypercube.rotate('zw', Math.PI/4);
+  hypercube.rotate('yw', Math.PI/4);
+  hypercube.rotate('xz', Math.PI/4);
 
   canvas.draw();
 
