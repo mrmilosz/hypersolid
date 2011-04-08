@@ -63,8 +63,8 @@ hypercube.rotateVertex =
   },
   xz: function(i, s, c)
   {
-    tmp = c * hypercube.vertices[i].x - s * hypercube.vertices[i].z;
-    hypercube.vertices[i].z = s * hypercube.vertices[i].x + c * hypercube.vertices[i].z;
+    tmp = c * hypercube.vertices[i].x + s * hypercube.vertices[i].z;
+    hypercube.vertices[i].z = -s * hypercube.vertices[i].x + c * hypercube.vertices[i].z;
     hypercube.vertices[i].x = tmp;
   },
   xw: function(i, s, c)
@@ -167,13 +167,13 @@ function init()
 
     if (e.shiftKey && e.altKey)
     {
-      hypercube.rotate('xw', Math.PI * motion.x / bound);
-      hypercube.rotate('yw', Math.PI * motion.y / bound);
+      hypercube.rotate('xy', Math.PI * motion.x / bound);
+      hypercube.rotate('zw', Math.PI * motion.y / bound);
     }
     else if (e.shiftKey)
     {
-      hypercube.rotate('xy', Math.PI * motion.x / bound);
-      hypercube.rotate('zw', Math.PI * motion.y / bound);
+      hypercube.rotate('xw', Math.PI * motion.x / bound);
+      hypercube.rotate('yw', Math.PI * motion.y / bound);
     }
     else
     {
