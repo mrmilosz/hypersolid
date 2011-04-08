@@ -1,0 +1,47 @@
+body,
+html
+{
+  margin: 0;
+  padding: 0;
+}
+
+#canvas
+{
+  display: block;
+  margin: 20px auto;
+  border: 1px solid #CCC;
+}
+
+#controls
+{
+  font: italic 14px "Times New Roman",serif;
+  color: #777;
+  padding: 0;
+  margin: 10px auto;
+  border-collapse: collapse;
+  clear: right;
+}
+
+#controls td
+{
+  margin: 0;
+  padding: 1px 3px;
+}
+
+#controls td:first-child
+{
+  text-align: right;
+  border-right: 1px solid #CCC;
+}
+
+#controls .key
+{
+  background-color: #CCC;
+  border: 1px solid #AAA;
+  padding: 0 3px;
+  font-style: normal;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+}
