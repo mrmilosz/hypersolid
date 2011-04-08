@@ -134,7 +134,7 @@ function init()
       var gradient = context.createLinearGradient(x1, y1, x2, y2); // Distance fade effect
       gradient.addColorStop(0, 'rgba(0, 191, ' + w1 + ', ' + z1 + ')');
       gradient.addColorStop(1, 'rgba(0, 191, ' + w2 + ', ' + z2 + ')');
-      context.lineWidth = 3;
+      context.lineWidth = 4;
       context.strokeStyle = gradient;
       context.stroke();
     }
