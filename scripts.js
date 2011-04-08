@@ -167,7 +167,7 @@ function init()
     currCoords.y = Math.floor(canvas.height / 2) - currCoords.y;
     var motion = { 'x': currCoords.x - canvas.startCoords.x, 'y': currCoords.y - canvas.startCoords.y };
 
-    if (e.shiftKey && e.altKey)
+    if (e.shiftKey && (e.altKey || e.ctrlKey))
     {
       hypercube.rotate('xy', Math.PI * motion.x / bound); // Full canvas drag ~ 2*PI
       hypercube.rotate('zw', Math.PI * motion.y / bound);
@@ -202,6 +202,7 @@ function init()
   hypercube.rotate('zw', Math.PI/4);
   hypercube.rotate('yw', Math.PI/4);
   hypercube.rotate('xz', Math.PI/4);
+  hypercube.rotate('zw', Math.PI/4);
 
   canvas.draw();
 
