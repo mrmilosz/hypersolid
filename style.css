@@ -5,6 +5,12 @@ html
   padding: 0;
 }
 
+body
+{
+   width: 700px;
+   margin: 0 auto;
+}
+
 #canvas
 {
   display: block;
@@ -12,29 +18,34 @@ html
   border: 1px solid #CCC;
 }
 
-#controls
+#instructions,
+#options
 {
   font: italic 14px "Times New Roman",serif;
   color: #777;
-  padding: 0;
-  margin: 10px auto;
   border-collapse: collapse;
-  clear: right;
+  margin: 10px;
+  padding: 0;
 }
 
-#controls td
+#instructions
+{
+  float: left
+}
+
+#instructions td
 {
   margin: 0;
   padding: 1px 3px;
 }
 
-#controls td:first-child
+#instructions td:first-child
 {
   text-align: right;
   border-right: 1px solid #CCC;
 }
 
-#controls .key
+#instructions .key
 {
   background-color: #CCC;
   border: 1px solid #AAA;
@@ -44,4 +55,22 @@ html
   -moz-border-radius: 5px;
   -khtml-border-radius: 5px;
   border-radius: 5px;
+}
+
+#options
+{
+   float: right;
+}
+
+#options td
+{
+   border: none;
+   padding: 3px;
+   margin: 0;
+}
+
+#options label
+{
+   margin: 0;
+   padding: 0;
 }

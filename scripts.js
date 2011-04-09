@@ -119,6 +119,7 @@ function init()
   /* Begin retrieved variables. */
 
   window.canvas = document.getElementById('canvas');
+  window.options = document.getElementById('options');
   canvas.context = canvas.getContext('2d');
 
   /* End retrieved variables. */
@@ -128,9 +129,6 @@ function init()
   canvas.width = DEFAULT_WIDTH;
   canvas.height = DEFAULT_HEIGHT;
   canvas.maxNorm = DEFAULT_MAX_NORM; // This value can be spoofed to affect scaling
-  canvas.drawEdges = true;
-  canvas.drawFaces = false;
-  canvas.drawPerspective = false;
 
   /* End declared variables. */
 
@@ -146,7 +144,7 @@ function init()
     var adjusted = [];
     for (i in hypercube.vertices)
     {
-      if (canvas.drawPerspective)
+      if (options.perspective.checked)
       {
         var zratio = hypercube.vertices[i].z / this.maxNorm;
         adjusted[i] =
@@ -168,7 +166,7 @@ function init()
         };
       }
     }
-    if (canvas.drawEdges)
+    if (options.edges.checked)
     {
       for (i in hypercube.edges)
       {
@@ -187,7 +185,7 @@ function init()
         context.stroke();
       }
     }
-    if (canvas.drawFaces)
+    if (options.faces.checked)
     {
       for (i in hypercube.faces)
       {
@@ -235,6 +233,15 @@ function init()
         context.strokeStyle = gradient;
 */        context.fillStyle = 'rgba(191, 191, 191, 0.01)';
         context.fill();
+      }
+    }
+    if (options.indices.checked)
+    {
+      context.font = 'italic 10px sans-serif';
+      context.textBaseline = 'top';
+      for (i in adjusted)
+      {
+        context.fillText(i.toString(), adjusted[i].x, adjusted[i].y);
       }
     }
   };
@@ -297,11 +304,19 @@ function init()
 
   /* Begin initial actions. */
 
+  var checkboxes = options.getElementsByTagName('input');
+  for (i in checkboxes)
+  {
+    checkboxes[i].onclick = function() { canvas.draw(); };
+  }
+
   hypercube.rotate('zw', Math.PI/4);
   hypercube.rotate('yw', Math.PI/4);
   hypercube.rotate('xz', Math.PI/4);
   hypercube.rotate('yz', Math.PI/4);
   hypercube.rotate('zw', Math.PI/4);
+
+  options.edges.checked = true;
 
   canvas.draw();
 
