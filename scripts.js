@@ -26,21 +26,42 @@ hypercube.vertices = // Begin with an unrotated unit hypercube
 
 hypercube.edges = // Repeated connections have been removed
 [
-  [  0,  1 ], [  0,  2 ], [  0,  4 ], [  0,  8 ],
-              [  1,  3 ], [  1,  5 ], [  1,  9 ],
-              [  2,  3 ], [  2,  6 ], [  2, 10 ],
-                          [  3,  7 ], [  3, 11 ],
-              [  4,  5 ], [  4,  6 ], [  4, 12 ],
-                          [  5,  7 ], [  5, 13 ],
-                          [  6,  7 ], [  6, 14 ],
-                                      [  7, 15 ],
-              [  8,  9 ], [  8, 10 ], [  8, 12 ],
-                          [  9, 11 ], [  9, 13 ],
-                          [ 10, 11 ], [ 10, 14 ],
-                                      [ 11, 15 ],
-                          [ 12, 13 ], [ 12, 14 ],
-                                      [ 13, 15 ],
-                                      [ 14, 15 ]
+  [ 0,  1], [ 0,  2], [ 0,  4], [ 0,  8],
+            [ 1,  3], [ 1,  5], [ 1,  9],
+            [ 2,  3], [ 2,  6], [ 2, 10],
+                      [ 3,  7], [ 3, 11],
+            [ 4,  5], [ 4,  6], [ 4, 12],
+                      [ 5,  7], [ 5, 13],
+                      [ 6,  7], [ 6, 14],
+                                [ 7, 15],
+            [ 8,  9], [ 8, 10], [ 8, 12],
+                      [ 9, 11], [ 9, 13],
+                      [10, 11], [10, 14],
+                                [11, 15],
+                      [12, 13], [12, 14],
+                                [13, 15],
+                                [14, 15]
+
+];
+
+hypercube.faces = // Repeated 4-cycles have been removed
+[
+  [ 0,  1,  9,  8], [ 0,  2,  3,  1], [ 0,  4,  6,  2], [ 0,  8, 12,  4],
+                                      [ 1,  5,  7,  3], [ 1,  9, 13,  5],
+  [ 2,  0,  8, 10],                   [ 2,  6,  7,  3], [ 2, 10, 14,  6],
+  [ 3,  1,  9, 11],                                     [ 3, 11, 15,  7],
+                    [ 4,  5,  1,  0], [ 4,  6,  7,  5], [ 4, 12, 14,  6],
+                                                        [ 5, 13, 15,  7],
+                                                        [ 6, 14, 15,  7],
+
+                                      [ 8, 10, 11,  9], [ 8, 12, 14, 10],
+                                                        [ 9, 13, 15, 11],
+                                                        [10, 14, 15, 11],
+  [11,  3,  7, 15],
+                                      [12, 13,  9,  8], [12, 14, 15, 13],
+                    [13,  9,  1,  5]
+
+
 ];
 
 hypercube.rotate = function(axis, theta) // sin and cos precomputed for efficiency
@@ -107,6 +128,9 @@ function init()
   canvas.width = DEFAULT_WIDTH;
   canvas.height = DEFAULT_HEIGHT;
   canvas.maxNorm = DEFAULT_MAX_NORM; // This value can be spoofed to affect scaling
+  canvas.drawEdges = true;
+  canvas.drawFaces = false;
+  canvas.drawPerspective = false;
 
   /* End declared variables. */
 
@@ -116,27 +140,102 @@ function init()
   {
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.lineWidth = 4;
+    context.lineJoin = 'round';
     var bound = Math.min(canvas.width, canvas.height) / 2;
-    for (i in hypercube.edges)
+    var adjusted = [];
+    for (i in hypercube.vertices)
     {
-      var x1 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][0]].x / this.maxNorm)) + 0.5;
-      var x2 = Math.floor(canvas.width / 2 + bound * (hypercube.vertices[hypercube.edges[i][1]].x / this.maxNorm)) + 0.5;
-      var y1 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][0]].y / this.maxNorm)) + 0.5;
-      var y2 = Math.floor(canvas.height / 2 - bound * (hypercube.vertices[hypercube.edges[i][1]].y / this.maxNorm)) + 0.5;
-      var z1 = 0.60 + 0.40 * hypercube.vertices[hypercube.edges[i][0]].z / this.maxNorm;
-      var z2 = 0.60 + 0.40 * hypercube.vertices[hypercube.edges[i][1]].z / this.maxNorm;
-      var w1 = 191 + Math.floor(64 * hypercube.vertices[hypercube.edges[i][0]].w / this.maxNorm);
-      var w2 = 191 + Math.floor(64 * hypercube.vertices[hypercube.edges[i][1]].w / this.maxNorm);
-      context.beginPath();
-      context.moveTo(x1, y1);
-      context.lineTo(x2, y2);
-      context.closePath();
-      var gradient = context.createLinearGradient(x1, y1, x2, y2); // Distance fade effect
-      gradient.addColorStop(0, 'rgba(0, 191, ' + w1 + ', ' + z1 + ')');
-      gradient.addColorStop(1, 'rgba(0, 191, ' + w2 + ', ' + z2 + ')');
-      context.lineWidth = 4;
-      context.strokeStyle = gradient;
-      context.stroke();
+      if (canvas.drawPerspective)
+      {
+        var zratio = hypercube.vertices[i].z / this.maxNorm;
+        adjusted[i] =
+        {
+          x: Math.floor(canvas.width / 2 + (0.90 + zratio * 0.30) * bound * (hypercube.vertices[i].x / this.maxNorm)) + 0.5,
+          y: Math.floor(canvas.height / 2 - (0.90 + zratio * 0.30) * bound * (hypercube.vertices[i].y / this.maxNorm)) + 0.5,
+          z: 0.60 + 0.40 * zratio,
+          w: 191 + Math.floor(64 * hypercube.vertices[i].w / this.maxNorm)
+        };
+      }
+      else
+      {
+        adjusted[i] =
+        {
+          x: Math.floor(canvas.width / 2 + bound * (hypercube.vertices[i].x / this.maxNorm)) + 0.5,
+          y: Math.floor(canvas.height / 2 - bound * (hypercube.vertices[i].y / this.maxNorm)) + 0.5,
+          z: 0.60 + 0.40 * hypercube.vertices[i].z / this.maxNorm,
+          w: 191 + Math.floor(64 * hypercube.vertices[i].w / this.maxNorm)
+        };
+      }
+    }
+    if (canvas.drawEdges)
+    {
+      for (i in hypercube.edges)
+      {
+        var x = [adjusted[hypercube.edges[i][0]].x, adjusted[hypercube.edges[i][1]].x];
+        var y = [adjusted[hypercube.edges[i][0]].y, adjusted[hypercube.edges[i][1]].y];
+        var z = [adjusted[hypercube.edges[i][0]].z, adjusted[hypercube.edges[i][1]].z];
+        var w = [adjusted[hypercube.edges[i][0]].w, adjusted[hypercube.edges[i][1]].w];
+        context.beginPath();
+        context.moveTo(x[0], y[0]);
+        context.lineTo(x[1], y[1]);
+        context.closePath();
+        var gradient = context.createLinearGradient(x[0], y[0], x[1], y[1]); // Distance fade effect
+        gradient.addColorStop(0, 'rgba(0, 191, ' + w[0] + ', ' + z[0] + ')');
+        gradient.addColorStop(1, 'rgba(0, 191, ' + w[1] + ', ' + z[1] + ')');
+        context.strokeStyle = gradient;
+        context.stroke();
+      }
+    }
+    if (canvas.drawFaces)
+    {
+      for (i in hypercube.faces)
+      {
+        var x =
+        [
+          adjusted[hypercube.faces[i][0]].x,
+          adjusted[hypercube.faces[i][1]].x,
+          adjusted[hypercube.faces[i][2]].x,
+          adjusted[hypercube.faces[i][3]].x
+        ];
+        var y =
+        [
+          adjusted[hypercube.faces[i][0]].y,
+          adjusted[hypercube.faces[i][1]].y,
+          adjusted[hypercube.faces[i][2]].y,
+          adjusted[hypercube.faces[i][3]].y
+        ];
+        var z =
+        [
+          adjusted[hypercube.faces[i][0]].z,
+          adjusted[hypercube.faces[i][1]].z,
+          adjusted[hypercube.faces[i][2]].z,
+          adjusted[hypercube.faces[i][3]].z
+        ];
+        context.moveTo(x[0], y[0]);
+        context.lineTo(x[1], y[1]);
+        context.lineTo(x[2], y[2]);
+        context.lineTo(x[3], y[3]);
+        context.lineTo(x[0], y[0]);
+        context.closePath();
+/*        var closest = { 'z': -Infinity };
+        var indexOfClosest;
+        for (j in hypercube.faces[i])
+        {
+          if (hypercube.faces[i][j].z > closest.z)
+          {
+            closest = hypercube.faces[i][j];
+            indexOfClosest = j;
+          }
+        }
+        var furthest = hypercube.faces[i][(indexOfClosest + 2) % 4];
+        var gradient = context.createLinearGradient(mx1, my1, mx2, my2); // Distance fade effect
+        gradient.addColorStop(0, 'rgba(191, 191, 191, ' + z[0] + ')');
+        gradient.addColorStop(1, 'rgba(191, 191, 191, ' + z[1] + ')');
+        context.strokeStyle = gradient;
+*/        context.fillStyle = 'rgba(191, 191, 191, 0.01)';
+        context.fill();
+      }
     }
   };
 
@@ -198,10 +297,10 @@ function init()
 
   /* Begin initial actions. */
 
-  // Weird bug with gradients doesn't allow identical lines to be stacked...
   hypercube.rotate('zw', Math.PI/4);
   hypercube.rotate('yw', Math.PI/4);
   hypercube.rotate('xz', Math.PI/4);
+  hypercube.rotate('yz', Math.PI/4);
   hypercube.rotate('zw', Math.PI/4);
 
   canvas.draw();
