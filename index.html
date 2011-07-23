@@ -3,11 +3,10 @@
   <head>
     <meta charset="UTF-8" /> 
     <title>Hypercube Projection</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <script type="text/javascript" src="scripts.js"></script>
+    <link rel="stylesheet" type="text/css" href="hypercube.css" />
   </head>
-  <body onload="init();">
-    <canvas id="canvas">Unfortunately, your browser does not support coolness.</canvas>
+  <body>
+    <canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
     <table id="instructions">
       <tr>
         <td>drag left/right</td><td><strong>xz</strong> rotation</td>
@@ -28,17 +27,17 @@
         <td><span class="key">alt</span>+<span class="key">shift</span>+drag up/down</td><td><strong>zw</strong> rotation</td>
       </tr>
     </table>
-    <form id="options">
+    <form id="hypercube-options">
       <table>
-        <tr>
-          <td><label><input type="checkbox" name="perspective" />Perspective</label></td>
-          <td><label><input type="checkbox" name="faces" />Faces (beta)</label></td>
-        <tr>
         <tr>
           <td><label><input type="checkbox" name="indices" />Indices</label></td>
           <td><label><input type="checkbox" name="edges" />Edges</label></td>
+        </tr>
         <tr>
+          <td><label><input type="checkbox" name="perspective" />Perspective</label></td>
+        </tr>
       </table>
     </form>
+    <script type="text/javascript" src="hypercube.js"></script>
   </body>
 </html>

@@ -1,0 +1,76 @@
+body,
+html
+{
+  margin: 0;
+  padding: 0;
+}
+
+body
+{
+   width: 700px;
+   margin: 0 auto;
+}
+
+#hypercube-canvas
+{
+  display: block;
+  margin: 20px auto;
+  border: 1px solid #CCC;
+}
+
+#instructions,
+#hypercube-options
+{
+  font: italic 14px "Times New Roman",serif;
+  color: #777;
+  border-collapse: collapse;
+  margin: 10px;
+  padding: 0;
+}
+
+#instructions
+{
+  float: left
+}
+
+#instructions td
+{
+  margin: 0;
+  padding: 1px 3px;
+}
+
+#instructions td:first-child
+{
+  text-align: right;
+  border-right: 1px solid #CCC;
+}
+
+#instructions .key
+{
+  background-color: #CCC;
+  border: 1px solid #AAA;
+  padding: 0 3px;
+  font-style: normal;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+}
+
+#hypercube-options
+{
+   float: right;
+}
+
+#hypercube-options td
+{
+   border: none;
+   padding: 3px;
+   margin: 0;
+}
+
+#hypercube-options label
+{
+   margin: 0;
+   padding: 0;
+}
