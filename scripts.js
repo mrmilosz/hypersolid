@@ -68,7 +68,7 @@ hypercube.rotate = function(axis, theta) // sin and cos precomputed for efficien
 {
   var s = Math.sin(theta);
   var c = Math.cos(theta);
-  for (i in this.vertices)
+  for (var i in this.vertices)
   {
     this.rotateVertex[axis](this.vertices[i], s, c);
   }
@@ -142,7 +142,7 @@ function init()
     context.lineJoin = 'round';
     var bound = Math.min(canvas.width, canvas.height) / 2;
     var adjusted = [];
-    for (i in hypercube.vertices)
+    for (var i in hypercube.vertices)
     {
       if (options.perspective.checked)
       {
@@ -168,7 +168,7 @@ function init()
     }
     if (options.edges.checked)
     {
-      for (i in hypercube.edges)
+      for (var i in hypercube.edges)
       {
         var x = [adjusted[hypercube.edges[i][0]].x, adjusted[hypercube.edges[i][1]].x];
         var y = [adjusted[hypercube.edges[i][0]].y, adjusted[hypercube.edges[i][1]].y];
@@ -179,69 +179,72 @@ function init()
         context.lineTo(x[1], y[1]);
         context.closePath();
         var gradient = context.createLinearGradient(x[0], y[0], x[1], y[1]); // Distance fade effect
-        gradient.addColorStop(0, 'rgba(0, 191, ' + w[0] + ', ' + z[0] + ')');
-        gradient.addColorStop(1, 'rgba(0, 191, ' + w[1] + ', ' + z[1] + ')');
+        if (options.faces.checked)
+        {
+          gradient.addColorStop(0, 'rgba(0, 191, ' + w[0] + ', ' + 0.60 + ')');
+          gradient.addColorStop(1, 'rgba(0, 191, ' + w[1] + ', ' + 0.60 + ')');
+        }
+        else
+        {
+          gradient.addColorStop(0, 'rgba(0, 191, ' + w[0] + ', ' + z[0] + ')');
+          gradient.addColorStop(1, 'rgba(0, 191, ' + w[1] + ', ' + z[1] + ')');
+        }
         context.strokeStyle = gradient;
         context.stroke();
-      }
-    }
-    if (options.faces.checked)
-    {
-      for (i in hypercube.faces)
-      {
-        var x =
-        [
-          adjusted[hypercube.faces[i][0]].x,
-          adjusted[hypercube.faces[i][1]].x,
-          adjusted[hypercube.faces[i][2]].x,
-          adjusted[hypercube.faces[i][3]].x
-        ];
-        var y =
-        [
-          adjusted[hypercube.faces[i][0]].y,
-          adjusted[hypercube.faces[i][1]].y,
-          adjusted[hypercube.faces[i][2]].y,
-          adjusted[hypercube.faces[i][3]].y
-        ];
-        var z =
-        [
-          adjusted[hypercube.faces[i][0]].z,
-          adjusted[hypercube.faces[i][1]].z,
-          adjusted[hypercube.faces[i][2]].z,
-          adjusted[hypercube.faces[i][3]].z
-        ];
-        context.moveTo(x[0], y[0]);
-        context.lineTo(x[1], y[1]);
-        context.lineTo(x[2], y[2]);
-        context.lineTo(x[3], y[3]);
-        context.lineTo(x[0], y[0]);
-        context.closePath();
-/*        var closest = { 'z': -Infinity };
-        var indexOfClosest;
-        for (j in hypercube.faces[i])
-        {
-          if (hypercube.faces[i][j].z > closest.z)
-          {
-            closest = hypercube.faces[i][j];
-            indexOfClosest = j;
-          }
-        }
-        var furthest = hypercube.faces[i][(indexOfClosest + 2) % 4];
-        var gradient = context.createLinearGradient(mx1, my1, mx2, my2); // Distance fade effect
-        gradient.addColorStop(0, 'rgba(191, 191, 191, ' + z[0] + ')');
-        gradient.addColorStop(1, 'rgba(191, 191, 191, ' + z[1] + ')');
-        context.strokeStyle = gradient;
-*/        context.fillStyle = 'rgba(191, 191, 191, 0.01)';
-        context.fill();
       }
     }
     if (options.indices.checked)
     {
       context.font = 'italic 10px sans-serif';
       context.textBaseline = 'top';
-      for (i in adjusted)
+      context.fillStyle = '#000';
+      for (var i in adjusted)
       {
         context.fillText(i.toString(), adjusted[i].x, adjusted[i].y);
+      }
+    }
+    if (options.faces.checked)
+    {
+      for (var i in hypercube.faces)
+      {
+        var face =
+        [
+          adjusted[hypercube.faces[i][0]],
+          adjusted[hypercube.faces[i][1]],
+          adjusted[hypercube.faces[i][2]],
+          adjusted[hypercube.faces[i][3]]
+        ];
+        var maxWI = maxIndex(function(v) { return v.w; }, face);
+        var maxXI = (maxWI + maxIndex(function(v) { return v.x; }, [face[(maxWI + 1) % 4], face[(maxWI + 3) % 4]]) * 2 + 1) % 4;
+        var x = [face[maxWI].x, face[maxXI].x, face[(maxWI + 2) % 4].x, face[(maxXI + 2) % 4].x];
+        var y = [face[maxWI].y, face[maxXI].y, face[(maxWI + 2) % 4].y, face[(maxXI + 2) % 4].y];
+        var dX = x[3] - x[1];
+        var dY = y[3] - y[1];
+        var norm = dX * dX + dY * dY;
+        var gX, gY;
+        if (norm == 0)
+        {
+          gX = x[2];
+          gY = y[0];
+        }
+        else
+        {
+          var mult = (dX * (x[0] - x[2]) + dY * (y[0] - y[3])) / norm;
+          gX = x[2] + dX * mult;
+          gY = y[2] + dY * mult;
+        }
+        context.moveTo(x[0], y[0]);
+        context.lineTo(x[1], y[1]);
+        context.lineTo(x[2], y[2]);
+        context.lineTo(x[3], y[3]);
+        context.lineTo(x[0], y[0]);
+        context.closePath();
+        var w = [face[maxWI].w, face[maxXI].w, face[(maxWI + 2) % 4].w, face[(maxXI + 2) % 4].w];
+        var gradient = context.createLinearGradient(x[0], y[0], gX, gY);
+        gradient.addColorStop(0, 'rgba(0, 191, ' + w[0] + ', ' + 0.03 + ')');
+        gradient.addColorStop(1, 'rgba(0, 191, ' + w[2] + ', ' + 0.03 + ')');
+        context.fillStyle = gradient;
+        context.fill();
       }
     }
   };
@@ -305,7 +308,7 @@ function init()
   /* Begin initial actions. */
 
   var checkboxes = options.getElementsByTagName('input');
-  for (i in checkboxes)
+  for (var i in checkboxes)
   {
     checkboxes[i].onclick = function() { canvas.draw(); };
   }
@@ -342,6 +345,27 @@ function mouseCoords(e) // http://answers.oreilly.com/topic/1929-how-to-use-the-
   x -= canvas.offsetLeft;
   y -= canvas.offsetTop;
   return { 'x': x, 'y': y };
+}
+
+function maxIndex(comp, arr)
+{
+  var arrLen = arr.length;
+  if (arrLen == 0)
+    return -Infinity;
+  else if (arrLen == 1)
+    return 0;
+  var maxIndex = 0;
+  var max = comp(arr[0]);
+  for (var i = 1; i < arrLen; i++)
+  {
+    var curr = comp(arr[i]);
+    if (curr > max)
+    {
+      max = curr;
+      maxInd = i;
+    }
+  }
+  return maxInd;
 }
 
 /* End helper routines. */
