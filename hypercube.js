@@ -29,7 +29,7 @@
     { x: -1, y: -1, z: -1, w: -1 }
   ];
 
-  hypercube.edges = // Repeated connections have been removed
+  hypercube.edges = 
   [
     [ 0,  1], [ 0,  2], [ 0,  4], [ 0,  8],
               [ 1,  3], [ 1,  5], [ 1,  9],
@@ -291,50 +291,5 @@
 
     /* End initial actions. */
   }
-
-  /* Begin helper routines. */
-
-  function mouseCoords(e) // http://answers.oreilly.com/topic/1929-how-to-use-the-canvas-and-draw-elements-in-html5/
-  {
-    var x;
-    var y;
-    if (e.pageX || e.pageY)
-    { 
-      x = e.pageX;
-      y = e.pageY;
-    }
-    else
-    { 
-      x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
-      y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
-    } 
-    x -= canvas.offsetLeft;
-    y -= canvas.offsetTop;
-    return { 'x': x, 'y': y };
-  }
-
-  function maxIndex(comp, arr)
-  {
-    var arrLen = arr.length;
-    if (arrLen == 0)
-      return -Infinity;
-    else if (arrLen == 1)
-      return 0;
-    var maxIndex = 0;
-    var max = comp(arr[0]);
-    for (var i = 1; i < arrLen; i++)
-    {
-      var curr = comp(arr[i]);
-      if (curr > max)
-      {
-        max = curr;
-        maxInd = i;
-      }
-    }
-    return maxInd;
-  }
-
-  /* End helper routines. */
-
   init();
 })();
