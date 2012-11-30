@@ -45,17 +45,7 @@
 			                              [14, 15]
 		]);
 
-		shape.rotate('zw', Math.PI/4);
-		shape.rotate('yw', Math.PI/4);
-		shape.rotate('xz', Math.PI/4);
-		shape.rotate('yz', Math.PI/4);
-		shape.rotate('zw', Math.PI/4);
-
-		Hypersolid.Viewport(shape , document.getElementById('hypercube-canvas'), {
-			perspective: { 'checked': true },
-			indices: { 'checked': false },
-			edges: { 'checked': true }
-		}).draw();	
+		Hypersolid.Viewport(shape , document.getElementById('hypercube-canvas')).draw();
 
 	})(); // ]]>
 	</script>

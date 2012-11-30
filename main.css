@@ -19,7 +19,8 @@ body
 }
 
 #instructions,
-#hypercube-options
+#hypercube-options,
+#errata
 {
   font: italic 14px "Times New Roman",serif;
   color: #777;
@@ -73,4 +74,17 @@ body
 {
    margin: 0;
    padding: 0;
+}
+
+#errata
+{
+	padding: 10px;
+	clear: both;
+	color: #920;
+}
+
+#errata .sig
+{
+	margin-top: 1em;
+	float: right;
 }

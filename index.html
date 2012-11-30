@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" /> 
     <title>Hypersolid Projection</title>
-    <link rel="stylesheet" type="text/css" href="hypersolid.css" />
+    <link rel="stylesheet" type="text/css" href="main.css" />
     <script type="text/javascript" src="hypersolid.js"></script>
   </head>
   <body>
@@ -32,13 +32,14 @@
       <table>
         <tr>
           <td><label><input type="checkbox" name="indices" />Indices</label></td>
-          <td><label><input type="checkbox" name="edges" />Edges</label></td>
+          <td><label><input type="checkbox" checked name="edges" />Edges</label></td>
         </tr>
         <tr>
-          <td><label><input type="checkbox" name="perspective" />Perspective</label></td>
+          <td><label><input type="checkbox" checked name="perspective" />Perspective</label></td>
         </tr>
       </table>
     </form>
+	<div id="errata">The rotation UI is currently slightly wonky! This is the result of a refactoring and apparently also of my lack of understanding of Gimbal Locks! I am working on it! <div class="sig">Milosz</div></div>
 	<script type="text/javascript">
 	/* <![CDATA[ */ (function() {
 
@@ -78,9 +79,7 @@
 		]);
 
 		Hypersolid.Viewport(shape , document.getElementById('hypercube-canvas'), {
-			perspective: { 'checked': true },
-			indices: { 'checked': false },
-			edges: { 'checked': true }
+			checkboxes: document.getElementById('hypercube-options')
 		}).draw();	
 
 	})(); // ]]>

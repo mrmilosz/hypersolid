@@ -14,6 +14,7 @@
 	DEFAULT_VIEWPORT_FONT_COLOR = '#000';
 	DEFAULT_VIEWPORT_LINE_WIDTH = 4;
 	DEFAULT_VIEWPORT_LINE_JOIN = 'round';
+  DEFAULT_CHECKBOX_VALUES = { perspective: true, indices: false, edges: true };
 
 	/* End constants. */
 
@@ -127,6 +128,7 @@
 			return new Viewport(shape, canvas, options);
 		}
 		var self = this;
+    options = options || {};
 
 		var scale = options.scale || DEFAULT_VIEWPORT_SCALE;
 		canvas.width = options.width || DEFAULT_VIEWPORT_WIDTH;
@@ -140,6 +142,8 @@
     context.lineWidth = options.lineWidth || DEFAULT_VIEWPORT_LINE_WIDTH;
     context.lineJoin = options.lineJoin || DEFAULT_VIEWPORT_LINE_JOIN;
 
+    var checkboxes = options.checkboxes || DEFAULT_CHECKBOX_VALUES;
+
     var clicked = false;
 		var startCoords;
 
@@ -150,7 +154,7 @@
       context.clearRect(0, 0, canvas.width, canvas.height);
       var adjusted = [];
       for (var i in vertices) {
-        if (options.perspective.checked) {
+        if (checkboxes.perspective.checked) {
           var zratio = vertices[i].z / scale;
           adjusted[i] = {
             x: Math.floor(canvas.width / 2 + (0.90 + zratio * 0.30) * bound * (vertices[i].x / scale)) + 0.5,
@@ -169,7 +173,7 @@
         }
       }
 
-      if (options.edges.checked) {
+      if (checkboxes.edges.checked) {
         for (var i in edges) {
           var x = [adjusted[edges[i][0]].x, adjusted[edges[i][1]].x];
           var y = [adjusted[edges[i][0]].y, adjusted[edges[i][1]].y];
@@ -187,7 +191,7 @@
         }
       }
 
-      if (options.indices.checked) {
+      if (checkboxes.indices.checked) {
         for (var i in adjusted) {
           context.fillText(i.toString(), adjusted[i].x, adjusted[i].y);
         }
@@ -232,6 +236,10 @@
 
     document.onmouseup = function() {
       clicked = false;
+    };
+
+    checkboxes.onchange = function() {
+      self.draw();
     };
 	}
 
