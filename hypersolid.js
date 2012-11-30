@@ -4,7 +4,7 @@
  * Four-dimensional solid viewer by Milosz Kosmider <milosz@milosz.ca>
  */
 
-(function() {
+(function(Hypersolid) {
 	/* Begin constants. */
 
 	DEFAULT_VIEWPORT_WIDTH = 480; // Width of canvas in pixels
@@ -24,11 +24,13 @@
 
 	/* Begin classes. */
 
-	function Shape(vertices, edges) {
-		if (!(this instanceof Shape)) {
-			return new Shape(vertices, edges);
-		}
-    var self = this;
+  Hypersolid.Shape = function() {
+    return new Shape(Array.prototype.slice.call(arguments, 0));
+  };
+	function Shape(argv) {
+    var self = this,
+      vertices = argv[0],
+      edges = argv[1];
 
 		// Rotations will always be relative to the original shape to avoid rounding errors.
 		// This is a structure for caching the rotated vertices.
@@ -81,13 +83,17 @@
 			}
 		};
 
+    self.getOriginalVertices = function() {
+      return vertices;
+    };
+
 		self.getVertices = function() {
 			return rotatedVertices;
-		}
+		};
 
 		self.getEdges = function() {
 			return edges;
-		}
+		};
 
 	  // This will copy the original shape and put a rotated version into rotatedVertices
 		self.rotate = function(axis, theta)  {
@@ -127,11 +133,15 @@
 		}
 	}
 
-	function Viewport(shape, canvas, options) {
-		if (!(this instanceof Viewport)) {
-			return new Viewport(shape, canvas, options);
-		}
-		var self = this;
+  Hypersolid.Viewport = function() {
+    return new Viewport(Array.prototype.slice.call(arguments, 0));
+  };
+	function Viewport(argv) {
+		var self = this,
+      shape = argv[0],
+      canvas = argv[1],
+      options = argv[2];
+
     options = options || {};
 
 		var scale = options.scale || DEFAULT_VIEWPORT_SCALE;
@@ -249,15 +259,6 @@
 
 	/* End classes. */
 
-	/* Begin exports. */
-
-	window.Hypersolid = window.Hypersolid || {
-		Shape: Shape,
-		Viewport: Viewport
-	}
-
-	/* End exports. */
-
   /* Begin helper routines. */
 
   function mouseCoords(e, element) { // http://answers.oreilly.com/topic/1929-how-to-use-the-canvas-and-draw-elements-in-html5/
@@ -278,4 +279,4 @@
 
   /* End helper routines. */
 
-})();
+})(window.Hypersolid = window.Hypersolid || {});
