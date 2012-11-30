@@ -14,7 +14,11 @@
 	DEFAULT_VIEWPORT_FONT_COLOR = '#000';
 	DEFAULT_VIEWPORT_LINE_WIDTH = 4;
 	DEFAULT_VIEWPORT_LINE_JOIN = 'round';
-  DEFAULT_CHECKBOX_VALUES = { perspective: true, indices: false, edges: true };
+  DEFAULT_CHECKBOX_VALUES = {
+    perspective: { checked: true },
+    indices: { checked: false },
+    edges: { checked: true }
+  };
 
 	/* End constants. */
 
