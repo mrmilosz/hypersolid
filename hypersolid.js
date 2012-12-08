@@ -5,40 +5,40 @@
  */
 
 (function(Hypersolid) {
-	/* Begin constants. */
+  /* Begin constants. */
 
-	DEFAULT_VIEWPORT_WIDTH = 480; // Width of canvas in pixels
-	DEFAULT_VIEWPORT_HEIGHT = 480; // Height of canvas in pixels
-	DEFAULT_VIEWPORT_SCALE = 2; // Maximum distance from origin (in math units) that will be displayed on the canvas
-	DEFAULT_VIEWPORT_FONT = 'italic 10px sans-serif';
-	DEFAULT_VIEWPORT_FONT_COLOR = '#000';
-	DEFAULT_VIEWPORT_LINE_WIDTH = 4;
-	DEFAULT_VIEWPORT_LINE_JOIN = 'round';
+  DEFAULT_VIEWPORT_WIDTH = 480; // Width of canvas in pixels
+  DEFAULT_VIEWPORT_HEIGHT = 480; // Height of canvas in pixels
+  DEFAULT_VIEWPORT_SCALE = 2; // Maximum distance from origin (in math units) that will be displayed on the canvas
+  DEFAULT_VIEWPORT_FONT = 'italic 10px sans-serif';
+  DEFAULT_VIEWPORT_FONT_COLOR = '#000';
+  DEFAULT_VIEWPORT_LINE_WIDTH = 4;
+  DEFAULT_VIEWPORT_LINE_JOIN = 'round';
   DEFAULT_CHECKBOX_VALUES = {
     perspective: { checked: true },
     indices: { checked: false },
     edges: { checked: true }
   };
 
-	/* End constants. */
+  /* End constants. */
 
-	/* Begin classes. */
+  /* Begin classes. */
 
   Hypersolid.Shape = function() {
     return new Shape(Array.prototype.slice.call(arguments, 0));
   };
-	function Shape(argv) {
+  function Shape(argv) {
     var self = this,
       vertices = argv[0],
       edges = argv[1];
 
-		// Rotations will always be relative to the original shape to avoid rounding errors.
-		// This is a structure for caching the rotated vertices.
-		var rotatedVertices = new Array(vertices.length);
-		copyVertices();
+    // Rotations will always be relative to the original shape to avoid rounding errors.
+    // This is a structure for caching the rotated vertices.
+    var rotatedVertices = new Array(vertices.length);
+    copyVertices();
 
-		// This is where we store the current rotations about each axis.
-		var rotations = { xy: 0, xz: 0, xw: 0, yz: 0, yw: 0, zw: 0 };
+    // This is where we store the current rotations about each axis.
+    var rotations = { xy: 0, xz: 0, xw: 0, yz: 0, yw: 0, zw: 0 };
 
     var rotationOrder = {
       yz: 1,
@@ -50,120 +50,120 @@
     };
 
     // Multiplication by vector rotation matrices of dimension 4
-		var rotateVertex = {
-			xy: function(v, s, c) {
-				tmp = c * v.x + s * v.y;
-				v.y = -s * v.x + c * v.y;
-				v.x = tmp;
-			},
-			xz: function(v, s, c) {
-				tmp = c * v.x + s * v.z;
-				v.z = -s * v.x + c * v.z;
-				v.x = tmp;
-			},
-			xw: function(v, s, c) {
-				tmp = c * v.x + s * v.w;
-				v.w = -s * v.x + c * v.w;
-				v.x = tmp;
-			},
-			yz: function(v, s, c) {
-				tmp = c * v.y + s * v.z;
-				v.z = -s * v.y + c * v.z;
-				v.y = tmp;
-			},
-			yw: function(v, s, c) {
-				tmp = c * v.y - s * v.w;
-				v.w = s * v.y + c * v.w;
-				v.y = tmp;
-			},
-			zw: function(v, s, c) {
-				tmp = c * v.z - s * v.w;
-				v.w = s * v.z + c * v.w;
-				v.z = tmp;
-			}
-		};
+    var rotateVertex = {
+      xy: function(v, s, c) {
+        tmp = c * v.x + s * v.y;
+        v.y = -s * v.x + c * v.y;
+        v.x = tmp;
+      },
+      xz: function(v, s, c) {
+        tmp = c * v.x + s * v.z;
+        v.z = -s * v.x + c * v.z;
+        v.x = tmp;
+      },
+      xw: function(v, s, c) {
+        tmp = c * v.x + s * v.w;
+        v.w = -s * v.x + c * v.w;
+        v.x = tmp;
+      },
+      yz: function(v, s, c) {
+        tmp = c * v.y + s * v.z;
+        v.z = -s * v.y + c * v.z;
+        v.y = tmp;
+      },
+      yw: function(v, s, c) {
+        tmp = c * v.y - s * v.w;
+        v.w = s * v.y + c * v.w;
+        v.y = tmp;
+      },
+      zw: function(v, s, c) {
+        tmp = c * v.z - s * v.w;
+        v.w = s * v.z + c * v.w;
+        v.z = tmp;
+      }
+    };
 
     self.getOriginalVertices = function() {
       return vertices;
     };
 
-		self.getVertices = function() {
-			return rotatedVertices;
-		};
+    self.getVertices = function() {
+      return rotatedVertices;
+    };
 
-		self.getEdges = function() {
-			return edges;
-		};
+    self.getEdges = function() {
+      return edges;
+    };
 
-	  // This will copy the original shape and put a rotated version into rotatedVertices
-		self.rotate = function(axis, theta)  {
-			addToRotation(axis, theta);
-			applyRotations();
-		};
+    // This will copy the original shape and put a rotated version into rotatedVertices
+    self.rotate = function(axis, theta)  {
+      addToRotation(axis, theta);
+      applyRotations();
+    };
 
-		function addToRotation(axis, theta) {
-			rotations[axis] = (rotations[axis] + theta) % (2 * Math.PI);
-		}
+    function addToRotation(axis, theta) {
+      rotations[axis] = (rotations[axis] + theta) % (2 * Math.PI);
+    }
 
-		function applyRotations() {
-			copyVertices();
+    function applyRotations() {
+      copyVertices();
 
-			for (var axis in rotationOrder) {
-				// sin and cos precomputed for efficiency
-				var s = Math.sin(rotations[axis]);
-				var c = Math.cos(rotations[axis]);
+      for (var axis in rotationOrder) {
+        // sin and cos precomputed for efficiency
+        var s = Math.sin(rotations[axis]);
+        var c = Math.cos(rotations[axis]);
 
-				for (var i in vertices)
-				{
-					rotateVertex[axis](rotatedVertices[i], s, c);
-				}
-			}
-		}
+        for (var i in vertices)
+        {
+          rotateVertex[axis](rotatedVertices[i], s, c);
+        }
+      }
+    }
 
-		function copyVertices() {
-			for (var i in vertices) {
-				var vertex = vertices[i];
-				rotatedVertices[i] = {
-					x: vertex.x,
-					y: vertex.y,
-					z: vertex.z,
-					w: vertex.w
-				};
-			}
-		}
-	}
+    function copyVertices() {
+      for (var i in vertices) {
+        var vertex = vertices[i];
+        rotatedVertices[i] = {
+          x: vertex.x,
+          y: vertex.y,
+          z: vertex.z,
+          w: vertex.w
+        };
+      }
+    }
+  }
 
   Hypersolid.Viewport = function() {
     return new Viewport(Array.prototype.slice.call(arguments, 0));
   };
-	function Viewport(argv) {
-		var self = this,
+  function Viewport(argv) {
+    var self = this,
       shape = argv[0],
       canvas = argv[1],
       options = argv[2];
 
     options = options || {};
 
-		var scale = options.scale || DEFAULT_VIEWPORT_SCALE;
-		canvas.width = options.width || DEFAULT_VIEWPORT_WIDTH;
-		canvas.height = options.height || DEFAULT_VIEWPORT_HEIGHT;
+    var scale = options.scale || DEFAULT_VIEWPORT_SCALE;
+    canvas.width = options.width || DEFAULT_VIEWPORT_WIDTH;
+    canvas.height = options.height || DEFAULT_VIEWPORT_HEIGHT;
     var bound = Math.min(canvas.width, canvas.height) / 2;
 
-		var context = canvas.getContext('2d');
-		context.font = options.font || DEFAULT_VIEWPORT_FONT;
-		context.textBaseline = 'top';
-		context.fillStyle = options.fontColor || DEFAULT_VIEWPORT_FONT_COLOR;
+    var context = canvas.getContext('2d');
+    context.font = options.font || DEFAULT_VIEWPORT_FONT;
+    context.textBaseline = 'top';
+    context.fillStyle = options.fontColor || DEFAULT_VIEWPORT_FONT_COLOR;
     context.lineWidth = options.lineWidth || DEFAULT_VIEWPORT_LINE_WIDTH;
     context.lineJoin = options.lineJoin || DEFAULT_VIEWPORT_LINE_JOIN;
 
     var checkboxes = options.checkboxes || DEFAULT_CHECKBOX_VALUES;
 
     var clicked = false;
-		var startCoords;
+    var startCoords;
 
-		self.draw = function() {
-			var vertices = shape.getVertices();
-			var edges = shape.getEdges();
+    self.draw = function() {
+      var vertices = shape.getVertices();
+      var edges = shape.getEdges();
 
       context.clearRect(0, 0, canvas.width, canvas.height);
       var adjusted = [];
@@ -255,9 +255,9 @@
     checkboxes.onchange = function() {
       self.draw();
     };
-	}
+  }
 
-	/* End classes. */
+  /* End classes. */
 
   /* Begin helper routines. */
 
