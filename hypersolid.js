@@ -83,6 +83,8 @@
       }
     };
 
+    var eventCallbacks = {};
+
     self.getOriginalVertices = function() {
       return vertices;
     };
@@ -103,11 +105,23 @@
     self.rotate = function(axis, theta)  {
       addToRotation(axis, theta);
       applyRotations();
+      triggerEventCallbacks('rotate');
     };
 
-    self.onRotate = function() {
-      // this refers to the hypershape
+    self.on = function(eventName, callback) {
+      if (eventCallbacks[eventName] === undefined) {
+        eventCallbacks[eventName] = [];
+      }
+      eventCallbacks[eventName].push(callback);
     };
+
+    function triggerEventCallbacks(eventName) {
+      if (eventCallbacks[eventName] !== undefined) {
+        for (index in eventCallbacks[eventName]) {
+          eventCallbacks[eventName][index].call(self);
+        }
+      }
+    }
 
     function addToRotation(axis, theta) {
       rotations[axis] = (rotations[axis] + theta) % (2 * Math.PI);
@@ -254,7 +268,6 @@
       startCoords = currCoords;
 
       self.draw();
-      shape.onRotate.call(shape);
     };
 
     document.onmouseup = function() {

@@ -33,10 +33,10 @@ pc
 d3.select("#rotations")
   .text(JSON.stringify(cube.getRotations(), null, '\t'));
 
-cube.onRotate = function() {
-  pc.data(cube.getVertices())
+cube.on('rotate', function() {
+  pc.data(this.getVertices())
     .render();
   d3.select("#rotations")
-    .text(JSON.stringify(cube.getRotations(), null, '\t'));
-};
+    .text(JSON.stringify(this.getRotations(), null, '\t'));
+});
 </script>
