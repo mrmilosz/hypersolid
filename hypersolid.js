@@ -95,6 +95,10 @@
       return edges;
     };
 
+    self.getRotations = function() {
+      return rotations;
+    };
+
     // This will copy the original shape and put a rotated version into rotatedVertices
     self.rotate = function(axis, theta)  {
       addToRotation(axis, theta);

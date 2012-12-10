@@ -9,35 +9,34 @@
 <body>
 <canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
 <div id="example" class="parcoords" style="width:500px;height:150px"></div>
-<p></p>
+<pre id="rotations"></pre>
 </body>
 <script>
+var cube = Hypersolid.Hypercube();
+Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
+  checkboxes: { perspective: { checked: true }, indices: { checked: false }, edges: { checked: true } },
+}).draw();  
 
-/* <![CDATA[ */ (function() {
+  
+var pc = d3.parcoords()("#example")
+  .dimensions(['x', 'y', 'z', 'w'])
+  .data([{x: -2, y: -2, z: -2, w: -2},
+         {x: 2, y: 2, z: 2, w: 2}])
+  .autoscale();
 
-  var cube = Hypersolid.Hypercube();
-  Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
-    checkboxes: { perspective: { checked: true }, indices: { checked: false }, edges: { checked: true } },
-  }).draw();  
+pc
+  .data(cube.getVertices())
+  .render()
+  .createAxes()
+  .reorderable();
 
-    
-  var pc = d3.parcoords()("#example")
-    .dimensions(['x', 'y', 'z', 'w'])
-    .data([{x: -2, y: -2, z: -2, w: -2},
-           {x: 2, y: 2, z: 2, w: 2}])
-    .autoscale();
+d3.select("#rotations")
+  .text(JSON.stringify(cube.getRotations(), null, '\t'));
 
-  pc
-    .data(cube.getVertices())
-    .render()
-    .createAxes()
-    .reorderable();
-
-  cube.onRotate = function() {
-    pc.data(cube.getVertices())
-      .render();
-  };
-
-})(); // ]]>
+cube.onRotate = function() {
+  pc.data(cube.getVertices())
+    .render();
+  d3.select("#rotations")
+    .text(JSON.stringify(cube.getRotations(), null, '\t'));
+};
 </script>
-
