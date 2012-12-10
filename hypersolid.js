@@ -101,6 +101,10 @@
       applyRotations();
     };
 
+    self.onRotate = function() {
+      // this refers to the hypershape
+    };
+
     function addToRotation(axis, theta) {
       rotations[axis] = (rotations[axis] + theta) % (2 * Math.PI);
     }
@@ -246,6 +250,7 @@
       startCoords = currCoords;
 
       self.draw();
+      shape.onRotate.call(shape);
     };
 
     document.onmouseup = function() {
