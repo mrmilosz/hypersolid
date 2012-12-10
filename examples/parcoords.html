@@ -1,0 +1,43 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Hypersolid Parallel Coordinates Example</title>
+<script src="lib/d3.v3.js"></script>
+<script src="lib/d3.parcoords.js"></script>
+<script type="text/javascript" src="../hypersolid.js"></script>
+<script type="text/javascript" src="../hypersolid.shapebank.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/d3.parcoords.css">
+<body>
+<canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
+<div id="example" class="parcoords" style="width:500px;height:150px"></div>
+<p></p>
+</body>
+<script>
+
+/* <![CDATA[ */ (function() {
+
+  var cube = Hypersolid.Hypercube();
+  Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
+    checkboxes: { perspective: { checked: true }, indices: { checked: false }, edges: { checked: true } },
+  }).draw();  
+
+    
+  var pc = d3.parcoords()("#example")
+    .dimensions(['x', 'y', 'z', 'w'])
+    .data([{x: -2, y: -2, z: -2, w: -2},
+           {x: 2, y: 2, z: 2, w: 2}])
+    .autoscale();
+
+  pc
+    .data(cube.getVertices())
+    .render()
+    .createAxes()
+    .reorderable();
+
+  cube.onRotate = function() {
+    pc.data(cube.getVertices())
+      .render();
+  };
+
+})(); // ]]>
+</script>
+
