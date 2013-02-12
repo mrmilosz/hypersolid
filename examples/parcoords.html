@@ -9,7 +9,7 @@
 <style>
 body {
   background: #000;
-  color: #f9f9f9;
+  color: #ccc;
 }
 .axis text {
   fill: none;
@@ -17,23 +17,57 @@ body {
 .axis > text {
   fill: #f9f9f9;
 }
+#instructions,
+form {
+  float: left;
+  font-size: 12px;
+  font-family: sans-serif;
+}
 </style>
 <body>
 <canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
-<div id="example" class="parcoords" style="width:600px;height:180px"></div>
+  <table id="instructions">
+    <tr>
+      <td>drag left/right</td><td><strong>xz</strong> rotation</td>
+    </tr>
+    <tr>
+      <td>drag up/down</td><td><strong>yz</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">shift</span>+drag left/right</td><td><strong>xw</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">shift</span>+drag up/down</td><td><strong>yw</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">alt</span>+<span class="key">shift</span>+drag left/right</td><td><strong>xy</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">alt</span>+<span class="key">shift</span>+drag up/down</td><td><strong>zw</strong> rotation</td>
+    </tr>
+  </table>
+  <form id="hypercube-options">
+    <label><input type="checkbox" name="rotate_xz" />Rotate xz</label><br/>
+    <label><input type="checkbox" name="rotate_yz" />Rotate yz</label><br/>
+    <label><input type="checkbox" name="rotate_xw" />Rotate xw</label><br/>
+    <label><input type="checkbox" name="rotate_yw" />Rotate yw</label><br/>
+    <label><input type="checkbox" name="rotate_xy" />Rotate xy</label><br/>
+    <label><input type="checkbox" name="rotate_zw" />Rotate zw</label><br/>
+  </form>
+<div id="example" class="parcoords" style="width:600px;height:200px"></div>
 <pre id="rotations"></pre>
 </body>
 <script>
 var cube = Hypersolid.Hypercube();
-Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
+var view = Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
   checkboxes: { 
     perspective: { checked: true },
     indices: { checked: false },
     edges: { checked: true } },
-    width: 260,
-    height: 260
-}).draw();  
-
+    width: 320,
+    height: 320
+});
+view.draw();
   
 var pc = d3.parcoords()("#example")
   .dimensions(['x', 'y', 'z', 'w'])
@@ -50,6 +84,34 @@ pointLines(cube.getVertices(), cube.getEdges());
 
 d3.select("#rotations")
   .text(JSON.stringify(cube.getRotations(), null, '\t'));
+
+options = document.getElementById('hypercube-options');
+d3.timer(function() {
+  if (options)
+  {
+    checkboxes = options.getElementsByTagName('input');
+  }
+  /* Begin ransformations */
+  if (options.rotate_xz.checked) {
+    cube.rotate("xz", 0.008);
+  }
+  if (options.rotate_yz.checked) {
+    cube.rotate("yz", 0.008);
+  }
+  if (options.rotate_xw.checked) {
+    cube.rotate("xw", 0.008);
+  }
+  if (options.rotate_yw.checked) {
+    cube.rotate("yw", 0.008);
+  }
+  if (options.rotate_xy.checked) {
+    cube.rotate("xy", 0.008);
+  }
+  if (options.rotate_zw.checked) {
+    cube.rotate("zw", 0.008);
+  }
+  view.draw();
+});
 
 cube.on('rotate', function() {
   var vertices = this.getVertices(); 
@@ -71,7 +133,8 @@ function pointLines(vertices, edges) {
   var ctx = pc.ctx.highlight;
   var canvas = pc.canvas.highlight;
   ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = "rgba(0,0,0,0.1)";
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "rgba(0,0,0,0.01)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.globalCompositeOperation = "lighter";
   ctx.globalAlpha = 0.4;
