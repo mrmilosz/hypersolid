@@ -6,6 +6,18 @@
 <script type="text/javascript" src="../hypersolid.js"></script>
 <script type="text/javascript" src="../hypersolid.shapebank.js"></script>
 <link rel="stylesheet" type="text/css" href="lib/d3.parcoords.css">
+<style>
+body {
+  background: #000;
+  color: #f9f9f9;
+}
+.axis text {
+  fill: none;
+}
+.axis > text {
+  fill: #f9f9f9;
+}
+</style>
 <body>
 <canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
 <div id="example" class="parcoords" style="width:600px;height:180px"></div>
@@ -14,7 +26,12 @@
 <script>
 var cube = Hypersolid.Hypercube();
 Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
-  checkboxes: { perspective: { checked: true }, indices: { checked: false }, edges: { checked: true } },
+  checkboxes: { 
+    perspective: { checked: true },
+    indices: { checked: false },
+    edges: { checked: true } },
+    width: 260,
+    height: 260
 }).draw();  
 
   
@@ -30,6 +47,8 @@ pc
   .createAxes()
   .reorderable();
 
+pointLines(cube.getVertices(), cube.getEdges());
+
 d3.select("#rotations")
   .text(JSON.stringify(cube.getRotations(), null, '\t'));
 
@@ -41,11 +60,22 @@ cube.on('rotate', function() {
     .render();
   
   // intersection points to show edges in ||-coords
+  pointLines(vertices, edges);
+
+  d3.select("#rotations")
+    .text(JSON.stringify(this.getRotations(), null, '\t'));
+});
+
+// Lines -> Points in Parallel Coordinates
+function pointLines(vertices, edges) {
+  // intersection points to show edges in ||-coords
   var dimensions = pc.dimensions();
-  var ctx = pc.ctx.marks;
-  var canvas = pc.canvas.marks;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "red";
+  var ctx = pc.ctx.highlight;
+  var canvas = pc.canvas.highlight;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = 0.2;
+  //ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "#f53";
   var pairs = d3.parcoords.adjacent_pairs(dimensions);
   var x = pc.xscale;
   var y = pc.yscale;
@@ -63,14 +93,11 @@ cube.on('rotate', function() {
       var cx = point.x;
       var cy = point.y;
       if (!isNaN(cx) && !isNaN(cy)) {
-        ctx.fillRect(cx-2,cy-2,4,4);
+        ctx.fillRect(cx-1,cy-1,2,2);
       }
     });
   });  
-
-  d3.select("#rotations")
-    .text(JSON.stringify(this.getRotations(), null, '\t'));
-});
+};
 
 function intersection(a, b, c, d) {
   return {
