@@ -18,10 +18,15 @@ body {
   fill: #f9f9f9;
 }
 #instructions,
-form {
+form,
+#hypercube-canvas {
   float: left;
   font-size: 12px;
   font-family: sans-serif;
+  margin-right: 20px;
+}
+#parcoords {
+clear: left;
 }
 </style>
 <body>
@@ -45,6 +50,22 @@ form {
     <tr>
       <td><span class="key">alt</span>+<span class="key">shift</span>+drag up/down</td><td><strong>zw</strong> rotation</td>
     </tr>
+    <tr>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td colspan=2>
+        The parallel coordinates plot shows the intersection points<br/> which correspond to edges of the hypercube.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Red</strong></td><td>First axis pair</td>
+    </tr>
+      <td><strong>Green</strong></td><td>Second axis pair</td>
+    </tr>
+    <tr>
+      <td><strong>Blue</strong></td><td>Third axis pair</td>
+    </tr>
   </table>
   <form id="hypercube-options">
     <label><input type="checkbox" name="rotate_xz" />Rotate xz</label><br/>
@@ -54,7 +75,7 @@ form {
     <label><input type="checkbox" name="rotate_xy" />Rotate xy</label><br/>
     <label><input type="checkbox" name="rotate_zw" />Rotate zw</label><br/>
   </form>
-<div id="example" class="parcoords" style="width:600px;height:200px"></div>
+<div id="parcoords" class="parcoords" style="width:600px;height:200px"></div>
 <pre id="rotations"></pre>
 </body>
 <script>
@@ -69,7 +90,7 @@ var view = Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas')
 });
 view.draw();
   
-var pc = d3.parcoords()("#example")
+var pc = d3.parcoords()("#parcoords")
   .dimensions(['x', 'y', 'z', 'w'])
   .data([{x: -2, y: -2, z: -2, w: -2},
          {x: 2, y: 2, z: 2, w: 2}])
@@ -128,6 +149,7 @@ cube.on('rotate', function() {
 
 // Lines -> Points in Parallel Coordinates
 function pointLines(vertices, edges) {
+  var colors = ["red", "green", "blue"];
   // intersection points to show edges in ||-coords
   var dimensions = pc.dimensions();
   var ctx = pc.ctx.highlight;
@@ -138,23 +160,32 @@ function pointLines(vertices, edges) {
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.globalCompositeOperation = "lighter";
   ctx.globalAlpha = 0.4;
-  ctx.fillStyle = "#f53";
   var pairs = d3.parcoords.adjacent_pairs(dimensions);
   var x = pc.xscale;
   var y = pc.yscale;
   edges.forEach(function(edge) {
     var zig1 = vertices[edge[0]];
     var zig2 = vertices[edge[1]];
-    pairs.forEach(function(pair) {
+    pairs.forEach(function(pair, pair_i) {
+      ctx.fillStyle = colors[pair_i];
       var dim1 = pair[0];
       var dim2 = pair[1];
       var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
       var b = { x: x(dim2), y: y[dim2](zig1[dim2])};
       var c = { x: x(dim1), y: y[dim1](zig2[dim1])};
       var d = { x: x(dim2), y: y[dim2](zig2[dim2])};
+
       var point = intersection(a,b,c,d);
       var cx = point.x;
       var cy = point.y;
+
+      // inversion
+      /*
+      if (cx < x(dim1) || cx > x(dim2) {
+
+      };
+      */
+
       if (!isNaN(cx) && !isNaN(cy)) {
         ctx.fillRect(cx-1,cy-1,2,2);
       }
