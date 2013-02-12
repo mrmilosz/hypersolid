@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="lib/d3.parcoords.css">
 <body>
 <canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
-<div id="example" class="parcoords" style="width:500px;height:150px"></div>
+<div id="example" class="parcoords" style="width:600px;height:180px"></div>
 <pre id="rotations"></pre>
 </body>
 <script>
@@ -34,9 +34,48 @@ d3.select("#rotations")
   .text(JSON.stringify(cube.getRotations(), null, '\t'));
 
 cube.on('rotate', function() {
-  pc.data(this.getVertices())
+  var vertices = this.getVertices(); 
+  var edges = this.getEdges(); 
+
+  pc.data(vertices)
     .render();
+  
+  // intersection points to show edges in ||-coords
+  var dimensions = pc.dimensions();
+  var ctx = pc.ctx.marks;
+  var canvas = pc.canvas.marks;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "red";
+  var pairs = d3.parcoords.adjacent_pairs(dimensions);
+  var x = pc.xscale;
+  var y = pc.yscale;
+  edges.forEach(function(edge) {
+    var zig1 = vertices[edge[0]];
+    var zig2 = vertices[edge[1]];
+    pairs.forEach(function(pair) {
+      var dim1 = pair[0];
+      var dim2 = pair[1];
+      var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
+      var b = { x: x(dim2), y: y[dim2](zig1[dim2])};
+      var c = { x: x(dim1), y: y[dim1](zig2[dim1])};
+      var d = { x: x(dim2), y: y[dim2](zig2[dim2])};
+      var point = intersection(a,b,c,d);
+      var cx = point.x;
+      var cy = point.y;
+      if (!isNaN(cx) && !isNaN(cy)) {
+        ctx.fillRect(cx-2,cy-2,4,4);
+      }
+    });
+  });  
+
   d3.select("#rotations")
     .text(JSON.stringify(this.getRotations(), null, '\t'));
 });
+
+function intersection(a, b, c, d) {
+  return {
+    x: ((a.x * b.y - a.y * b.x) * (c.x - d.x) - (a.x - b.x) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)),
+    y: ((a.x * b.y - a.y * b.x) * (c.y - d.y) - (a.y - b.y) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x))
+  };
+};
 </script>
