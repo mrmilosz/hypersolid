@@ -62,19 +62,6 @@ form,
     <tr>
       <td>-</td>
     </tr>
-    <tr>
-      <td colspan=2>
-        The parallel coordinates plot shows the intersection points<br/> which correspond to edges of the hypercube.
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Red</strong></td><td>First axis pair</td>
-    </tr>
-      <td><strong>Green</strong></td><td>Second axis pair</td>
-    </tr>
-    <tr>
-      <td><strong>Blue</strong></td><td>Third axis pair</td>
-    </tr>
   </table>
   <form id="hypercube-options">
     <label><input type="checkbox" name="rotate_xy" />Rotate xy</label><br/>
@@ -93,11 +80,13 @@ var cube = Hypersolid.Hypercube();
 var view = Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
   checkboxes: { 
     perspective: { checked: true },
-    indices: { checked: false },
-    edges: { checked: true } },
-    lineWidth: 3,
-    width: 280,
-    height: 280
+    indices: { checked: true },
+    edges: { checked: true }
+  },
+  fontColor: "#ffffff",
+  lineWidth: 2.5,
+  width: 260,
+  height: 260
 });
 view.draw();
   
@@ -108,16 +97,21 @@ var pc = d3.parcoords()("#parcoords")
   .autoscale();
 
 pc
+  .color(color)
+  .alpha(0.4)
   .data(cube.getVertices())
   .createAxes()
-  .reorderable();
+  .reorderable()
+  .render();
 
 pointLines(cube.getVertices(), cube.getEdges());
+vertexIndices(cube.getVertices(), pc);
 
 d3.select("#rotations")
   .text(JSON.stringify(cube.getRotations(), null, '\t'));
 
 options = document.getElementById('hypercube-options');
+
 d3.timer(function() {
   if (options)
   {
@@ -149,7 +143,9 @@ cube.on('rotate', function() {
   var vertices = this.getVertices(); 
   var edges = this.getEdges(); 
 
-  pc.data(vertices);
+  pc.data(vertices)
+    .render();
+  vertexIndices(vertices, pc);
   
   // intersection points to show edges in ||-coords
   pointLines(vertices, edges);
@@ -160,25 +156,21 @@ cube.on('rotate', function() {
 
 // Lines -> Points in Parallel Coordinates
 function pointLines(vertices, edges) {
-  var colors = ["red", "green", "blue"];
   // intersection points to show edges in ||-coords
   var dimensions = pc.dimensions();
   var ctx = pc.ctx.highlight;
   var canvas = pc.canvas.highlight;
   ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = "rgba(0,0,0,0.01)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.globalCompositeOperation = "lighter";
-  ctx.globalAlpha = 0.6;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   var pairs = d3.parcoords.adjacent_pairs(dimensions);
   var x = pc.xscale;
   var y = pc.yscale;
   edges.forEach(function(edge) {
     var zig1 = vertices[edge[0]];
     var zig2 = vertices[edge[1]];
+    var midpoint = average(zig1,zig2);
     pairs.forEach(function(pair, pair_i) {
-      ctx.fillStyle = colors[pair_i];
+      ctx.fillStyle = color(midpoint);
       var dim1 = pair[0];
       var dim2 = pair[1];
       var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
@@ -198,10 +190,31 @@ function pointLines(vertices, edges) {
       */
 
       if (!isNaN(cx) && !isNaN(cy)) {
-        ctx.fillRect(cx-1,cy-1,2,2);
+        ctx.fillRect(cx-2,cy-2,4,4);
       }
     });
   });  
+};
+
+function vertexIndices(vertices, pc) {
+  var dimensions = pc.dimensions(); 
+  var first_dimension = dimensions[0]
+  var last_dimension = dimensions[dimensions.length-1]
+  var yscale_first = pc.yscale[first_dimension];
+  var yscale_last = pc.yscale[last_dimension];
+  var x_first = pc.xscale(first_dimension);
+  var x_last = pc.xscale(last_dimension);
+  pc.ctx.foreground.fillStyle = "#fff";
+  pc.ctx.foreground.font = "bold 12px sans-serif";
+  pc.ctx.foreground.textBaseline = 'middle';
+  pc.ctx.foreground.textAlign = 'right';
+  vertices.forEach(function(d,i) {
+      pc.ctx.foreground.fillText(i,x_first-4,yscale_first(d[first_dimension]));
+  });
+  pc.ctx.foreground.textAlign = 'left';
+  vertices.forEach(function(d,i) {
+      pc.ctx.foreground.fillText(i,x_last+4,yscale_last(d[last_dimension]));
+  });
 };
 
 function intersection(a, b, c, d) {
@@ -209,5 +222,21 @@ function intersection(a, b, c, d) {
     x: ((a.x * b.y - a.y * b.x) * (c.x - d.x) - (a.x - b.x) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)),
     y: ((a.x * b.y - a.y * b.x) * (c.y - d.y) - (a.y - b.y) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x))
   };
+};
+
+// color scale
+function color(d) {
+  var z = 0.8 + 0.2 * d.z;
+  var w = 151 + Math.floor(40*(d.w));
+  return "rgba(255," + w + ",0," + z + ")";
+};
+
+function average(p1, p2) {
+  return {
+    x: (p1.x+p2.x)/2,
+    y: (p1.y+p2.y)/2,
+    z: (p1.z+p2.z)/2,
+    w: (p1.w+p2.w)/2,
+  }
 };
 </script>
