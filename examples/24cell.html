@@ -172,10 +172,10 @@ function pointLines(vertices, edges) {
   var canvas = pc.canvas.highlight;
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = 1;
-  ctx.fillStyle = "rgba(0,0,0,0.01)";
+  ctx.fillStyle = "rgba(0,0,0,0.025)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.globalCompositeOperation = "lighter";
-  ctx.globalAlpha = 0.6;
+  ctx.globalAlpha = 0.7;
   var pairs = d3.parcoords.adjacent_pairs(dimensions);
   var x = pc.xscale;
   var y = pc.yscale;
