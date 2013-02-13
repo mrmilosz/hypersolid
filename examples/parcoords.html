@@ -108,6 +108,7 @@ var pc = d3.parcoords()("#parcoords")
   .autoscale();
 
 pc
+  .color("transparent")
   .data(cube.getVertices())
   .createAxes()
   .reorderable();
