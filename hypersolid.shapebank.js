@@ -7,7 +7,7 @@
   Hypersolid.Hypercube = function() {
     return new Hypercube();
   };
-  function Hypercube() {}
+  function Hypercube() {};
   Hypercube.prototype = Hypersolid.Shape([
     { x:  1, y:  1, z:  1, w:  1 },
     { x:  1, y:  1, z:  1, w: -1 },
@@ -43,10 +43,28 @@
                                   [14, 15]
   ]);
 
+  Hypersolid.Simplex = function() {
+    return new Simplex();
+  };
+  function Simplex() {};
+  Simplex.prototype = Hypersolid.Shape([
+    {"x":0,"y":0,"z":0,"w":2},
+    {"x":-1,"y":1,"z":1,"w":0},
+    {"x":1,"y":-1,"z":1,"w":0},
+    {"x":1,"y":1,"z":-1,"w":0},
+    {"x":-1,"y":-1,"z":-1,"w":0}
+  ], [
+    [0,1],[0,2],[0,3],
+    [1,2],[1,3],
+    [2,3],
+    [3,4],
+    [4,0],[4,1],[4,2],
+  ]);
+
   Hypersolid.Icositetrachoron = function() {
     return new Icositetrachoron();
   };
-  function Icositetrachoron() {}
+  function Icositetrachoron() {};
   Icositetrachoron.prototype = Hypersolid.Shape([
     {x:-2,y:0,z:0,w:0},
     {x:0,y:-2,z:0,w:0},

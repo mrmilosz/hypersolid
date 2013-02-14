@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" /> 
+		<title>Hypercube Projection</title>
+		<link rel="stylesheet" type="text/css" href="main.css" />
+    <style>
+      #hypercube-canvas {
+        border: none;
+        display: inline-block;
+        margin: 0;
+      } 
+    </style>
+		<script type="text/javascript" src="hypersolid.js"></script>
+		<script type="text/javascript" src="hypersolid.shapebank.js"></script>
+	</head>
+	<body>
+		<canvas id="simplex-canvas">Unfortunately, your browser does not support coolness.</canvas>
+		<canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
+		<canvas id="24cell-canvas">Unfortunately, your browser does not support coolness.</canvas>
+		<form id="hypercube-options">
+			<table>
+				<tr>
+					<td><label><input type="checkbox" name="indices" />Indices</label></td>
+					<td><label><input type="checkbox" checked name="edges" />Edges</label></td>
+				</tr>
+				<tr>
+					<td><label><input type="checkbox" checked name="perspective" />Perspective</label></td>
+				</tr>
+			</table>
+		</form>
+	<script type="text/javascript">
+	/* <![CDATA[ */ (function() {
+
+		Hypersolid.Viewport(Hypersolid.Simplex(), document.getElementById('simplex-canvas'), {
+			checkboxes: document.getElementById('hypercube-options'),
+			width: 200,
+			height: 200,
+			scale: 2,
+			font: 'italic 10px sans-serif',
+			fontColor: '#000',
+			lineWidth: 3,
+			lineJoin: 'round'
+		}).draw();	
+
+		Hypersolid.Viewport(Hypersolid.Hypercube(), document.getElementById('hypercube-canvas'), {
+			checkboxes: document.getElementById('hypercube-options'),
+			width: 200,
+			height: 200,
+			scale: 2,
+			font: 'italic 10px sans-serif',
+			fontColor: '#000',
+			lineWidth: 3,
+			lineJoin: 'round'
+		}).draw();	
+
+		Hypersolid.Viewport(Hypersolid.Icositetrachoron(), document.getElementById('24cell-canvas'), {
+			checkboxes: document.getElementById('hypercube-options'),
+			width: 200,
+			height: 200,
+			scale: 2,
+			font: 'italic 10px sans-serif',
+			fontColor: '#000',
+			lineWidth: 3,
+			lineJoin: 'round'
+		}).draw();	
+	})(); // ]]>
+	</script>
+	</body>
+</html>
