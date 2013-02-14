@@ -43,6 +43,7 @@
                                   [14, 15]
   ]);
 
+  // 5 cell
   Hypersolid.Simplex = function() {
     return new Simplex();
   };
@@ -61,6 +62,32 @@
     [4,0],[4,1],[4,2],
   ]);
 
+  // 16 cell
+  Hypersolid.Cross = function() {
+    return new Cross();
+  };
+  function Cross() {};
+  Cross.prototype = Hypersolid.Shape([
+    {"x":-2,"y":0,"z":0,"w":0},
+    {"x":0,"y":-2,"z":0,"w":0},
+    {"x":0,"y":0,"z":-2,"w":0},
+    {"x":0,"y":0,"z":0,"w":-2},
+    {"x":2,"y":0,"z":0,"w":0},
+    {"x":0,"y":2,"z":0,"w":0},
+    {"x":0,"y":0,"z":2,"w":0},
+    {"x":0,"y":0,"z":0,"w":2}
+  ], [
+    [0,1],[0,2],[0,3],[0,5],[0,6],
+    [1,2],[1,3],[1,4],[1,6],
+    [2,3],[2,4],[2,5],
+    [3,4],[3,5],
+    [4,5],[4,6],
+    [5,6],
+    [6,3],[6,7],
+    [7,0],[7,1],[7,2],[7,4],[7,5]
+  ]);
+
+  // 24 cell
   Hypersolid.Icositetrachoron = function() {
     return new Icositetrachoron();
   };

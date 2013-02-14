@@ -5,11 +5,17 @@
 		<title>Hypercube Projection</title>
 		<link rel="stylesheet" type="text/css" href="main.css" />
     <style>
+      html, body { 
+        background: #000;
+      }
       #hypercube-canvas {
         border: none;
         display: inline-block;
         margin: 0;
       } 
+      #hypercube-options {
+        color: #ddd;
+      }
     </style>
 		<script type="text/javascript" src="hypersolid.js"></script>
 		<script type="text/javascript" src="hypersolid.shapebank.js"></script>
@@ -17,53 +23,110 @@
 	<body>
 		<canvas id="simplex-canvas">Unfortunately, your browser does not support coolness.</canvas>
 		<canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
+		<canvas id="cross-canvas">Unfortunately, your browser does not support coolness.</canvas>
 		<canvas id="24cell-canvas">Unfortunately, your browser does not support coolness.</canvas>
 		<form id="hypercube-options">
-			<table>
-				<tr>
-					<td><label><input type="checkbox" name="indices" />Indices</label></td>
-					<td><label><input type="checkbox" checked name="edges" />Edges</label></td>
-				</tr>
-				<tr>
-					<td><label><input type="checkbox" checked name="perspective" />Perspective</label></td>
-				</tr>
-			</table>
+      <label><input type="checkbox" name="rotate_xy" />Rotate xy</label><br/>
+      <label><input type="checkbox" name="rotate_yz" />Rotate yz</label><br/>
+      <label><input type="checkbox" name="rotate_zw" />Rotate zw</label><br/>
+      <label><input type="checkbox" name="rotate_xz" />Rotate xz</label><br/>
+      <label><input type="checkbox" name="rotate_xw" />Rotate xw</label><br/>
+      <label><input type="checkbox" name="rotate_yw" />Rotate yw</label><br/>
 		</form>
 	<script type="text/javascript">
 	/* <![CDATA[ */ (function() {
 
-		Hypersolid.Viewport(Hypersolid.Simplex(), document.getElementById('simplex-canvas'), {
-			checkboxes: document.getElementById('hypercube-options'),
-			width: 200,
-			height: 200,
+    var simplex = Hypersolid.Simplex();
+    var simplexView = Hypersolid.Viewport(simplex, document.getElementById('simplex-canvas'), {
+			width: 280,
+			height: 280,
 			scale: 2,
-			font: 'italic 10px sans-serif',
-			fontColor: '#000',
 			lineWidth: 3,
 			lineJoin: 'round'
-		}).draw();	
+		});	
+    simplexView.draw();
 
-		Hypersolid.Viewport(Hypersolid.Hypercube(), document.getElementById('hypercube-canvas'), {
-			checkboxes: document.getElementById('hypercube-options'),
-			width: 200,
-			height: 200,
+    var cube = Hypersolid.Hypercube();
+		var cubeView = Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
+			width: 280,
+			height: 280,
 			scale: 2,
-			font: 'italic 10px sans-serif',
-			fontColor: '#000',
 			lineWidth: 3,
 			lineJoin: 'round'
-		}).draw();	
+    });
+    cubeView.draw();
 
-		Hypersolid.Viewport(Hypersolid.Icositetrachoron(), document.getElementById('24cell-canvas'), {
-			checkboxes: document.getElementById('hypercube-options'),
-			width: 200,
-			height: 200,
+    var cross = Hypersolid.Cross();
+		var crossView = Hypersolid.Viewport(cross, document.getElementById('cross-canvas'), {
+			width: 280,
+			height: 280,
 			scale: 2,
-			font: 'italic 10px sans-serif',
-			fontColor: '#000',
 			lineWidth: 3,
 			lineJoin: 'round'
-		}).draw();	
+    });
+    crossView.draw();
+
+    var icosite = Hypersolid.Icositetrachoron();
+		var icositeView = Hypersolid.Viewport(icosite, document.getElementById('24cell-canvas'), {
+			width: 280,
+			height: 280,
+			scale: 2,
+			lineWidth: 3,
+			lineJoin: 'round'
+    });
+    icositeView.draw();	
+
+    // animation
+    options = document.getElementById('hypercube-options');
+    function render() {
+      if (options) {
+        checkboxes = options.getElementsByTagName('input');
+      }
+      if (options.rotate_xz.checked) {
+        rotate("xz", 0.008);
+      }
+      if (options.rotate_yz.checked) {
+        rotate("yz", 0.008);
+      }
+      if (options.rotate_xw.checked) {
+        rotate("xw", 0.008);
+      }
+      if (options.rotate_yw.checked) {
+        rotate("yw", 0.008);
+      }
+      if (options.rotate_xy.checked) {
+        rotate("xy", 0.008);
+      }
+      if (options.rotate_zw.checked) {
+        rotate("zw", 0.008);
+      }
+    };
+
+    function rotate(plane, x) {
+      simplex.rotate(plane, x);
+      simplexView.draw();
+      cube.rotate(plane, x);
+      cubeView.draw();
+      cross.rotate(plane, x);
+      crossView.draw();
+      icosite.rotate(plane, x);
+      icositeView.draw();
+    };
+
+    // shim layer with setTimeout fallback
+    window.requestAnimFrame = window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function( callback ){
+      window.setTimeout(callback, 1000 / 60);
+    };
+
+    (function animloop(){
+      requestAnimFrame(animloop);
+      render();
+    })();
 	})(); // ]]>
 	</script>
 	</body>
