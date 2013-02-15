@@ -281,6 +281,36 @@
 
   /* End classes. */
 
+  /* Begin methods. */
+
+  // parse ascii files from http://paulbourke.net/geometry/hyperspace/
+  Hypersolid.parseVEF = function(text) {
+    var lines = text.split("\n");
+    var nV = parseInt(lines[0]);  // number of vertices
+    var nE = parseInt(lines[1+nV]);  // number of edges
+    var nF = parseInt(lines[2+nV+nE]);  // number of faces
+    var vertices = lines.slice(1,1+nV).map(function(line) {
+      var d = line.split("\t").map(parseFloat);
+      return {
+        x: d[0],
+        y: d[1],
+        z: d[2],
+        w: d[3],
+      }
+    });
+    var edges = lines.slice(2+nV,2+nV+nE).map(function(line) {
+      var d = line.replace("\s","").split("\t").map(function(vertex) { return parseInt(vertex); });
+      return [d[0], d[1]];;
+    });
+    var faces = lines.slice(3+nV+nE,3+nV+nE+nF).map(function(line) {
+      var d = line.replace("\s","").split("\t").map(function(edge) { return parseInt(edge); });
+      return d;
+    });
+    return [vertices,edges,faces]
+  };
+
+  /* End methods. */
+
   /* Begin helper routines. */
 
   function mouseCoords(e, element) { // http://answers.oreilly.com/topic/1929-how-to-use-the-canvas-and-draw-elements-in-html5/
