@@ -174,8 +174,7 @@ function pointLines(vertices, edges) {
   ctx.globalAlpha = 1;
   ctx.fillStyle = "rgba(0,0,0,0.025)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.globalCompositeOperation = "lighter";
-  ctx.globalAlpha = 0.7;
+  ctx.globalAlpha = 0.8;
   var pairs = d3.parcoords.adjacent_pairs(dimensions);
   var x = pc.xscale;
   var y = pc.yscale;
@@ -183,7 +182,7 @@ function pointLines(vertices, edges) {
     var zig1 = vertices[edge[0]];
     var zig2 = vertices[edge[1]];
     pairs.forEach(function(pair, pair_i) {
-      ctx.fillStyle = colors[pair_i];
+      ctx.fillStyle = color(midpoint(zig1,zig2));
       var dim1 = pair[0];
       var dim2 = pair[1];
       var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
@@ -214,5 +213,21 @@ function intersection(a, b, c, d) {
     x: ((a.x * b.y - a.y * b.x) * (c.x - d.x) - (a.x - b.x) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)),
     y: ((a.x * b.y - a.y * b.x) * (c.y - d.y) - (a.y - b.y) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x))
   };
+};
+
+// color scale
+function color(d) {
+  var z = 0.8 + 0.2 * d.z;
+  var w = 151 + Math.floor(40*(d.w));
+  return "rgba(255," + w + ",0," + z + ")";
+};
+
+function midpoint(p1, p2) {
+  return {
+    x: (p1.x+p2.x)/2,
+    y: (p1.y+p2.y)/2,
+    z: (p1.z+p2.z)/2,
+    w: (p1.w+p2.w)/2,
+  }
 };
 </script>
