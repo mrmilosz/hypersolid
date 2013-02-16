@@ -1,6 +1,4 @@
-
-<!-- saved from url=(0058)http://paulbourke.net/geometry/hyperspace/5cell_snub.ascii -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">60
+60
 0.894426	-0.447212	0	1
 0.447212	0	-0.894426	1
 0	-0.894426	-0.447212	1
@@ -633,4 +631,3 @@
 3	32	57	59
 3	32	52	59
 3	32	52	57
-</pre></body></html>
