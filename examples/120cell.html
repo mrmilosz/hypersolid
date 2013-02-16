@@ -82,7 +82,7 @@ form,
 <pre id="rotations"></pre>
 </body>
 <script>
-d3.text("../data/24cell_snub.ascii", function(err, text) {
+d3.text("../data/120cell.ascii", function(err, text) {
   var data = Hypersolid.parseVEF(text);
   Hypersolid.NewShape= function() {
     return new NewShape();
@@ -102,7 +102,7 @@ function render(shape) {
     },
     fontColor: "#ffffff",
     lineWidth: 0.3,
-    scale: 3.5,
+    scale: 2.7,
     width: 400,
     height: 400
   });
@@ -175,7 +175,6 @@ function render(shape) {
     var dimensions = pc.dimensions();
     var ctx = pc.ctx.highlight;
     var canvas = pc.canvas.highlight;
-    ctx.globalCompositeOperation = "source-over";
     ctx.clearRect(0,0,canvas.width,canvas.height);
     var pairs = d3.parcoords.adjacent_pairs(dimensions);
     var x = pc.xscale;
