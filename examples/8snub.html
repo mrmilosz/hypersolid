@@ -110,8 +110,8 @@ function render(shape) {
     
   var pc = d3.parcoords()("#parcoords")
     .dimensions(['x', 'y', 'z', 'w'])
-    .data([{x: -3, y: -3, z: -3, w: -3},
-           {x: 3, y: 3, z: 3, w: 3}])
+    .data([{x: -5, y: -5, z: -5, w: -5},
+           {x: 5, y: 5, z: 5, w: 5}])
     .autoscale();
 
   pc.ctx.foreground.lineWidth = 0.4;
