@@ -1,0 +1,230 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Hypersolid Parallel Coordinates Example</title>
+<script src="lib/d3.v3.js"></script>
+<script src="lib/d3.parcoords.js"></script>
+<script type="text/javascript" src="../hypersolid.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/d3.parcoords.css">
+<style>
+body {
+  background: #000;
+  color: #ccc;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+a {
+  color: #ea5;
+}
+.axis text {
+  fill: none;
+}
+.axis > text {
+  fill: #f9f9f9;
+}
+#instructions,
+form,
+#hypercube-canvas {
+  float: left;
+  margin-right: 20px;
+}
+#parcoords {
+  clear: left;
+}
+#hypercube-canvas {
+  cursor: move;
+}
+</style>
+<body>
+<canvas id="hypercube-canvas">Unfortunately, your browser does not support coolness.</canvas>
+  <table id="instructions">
+    <tr>
+      <td>drag left/right</td><td><strong>xz</strong> rotation</td>
+    </tr>
+    <tr>
+      <td>drag up/down</td><td><strong>yz</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">shift</span>+drag left/right</td><td><strong>xw</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">shift</span>+drag up/down</td><td><strong>yw</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">alt</span>+<span class="key">shift</span>+drag left/right</td><td><strong>xy</strong> rotation</td>
+    </tr>
+    <tr>
+      <td><span class="key">alt</span>+<span class="key">shift</span>+drag up/down</td><td><strong>zw</strong> rotation</td>
+    </tr>
+    <tr>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td colspan=2>
+      </td>
+    </tr>
+  </table>
+  <form id="hypercube-options">
+    <label><input type="checkbox" name="rotate_xy" />Rotate xy</label><br/>
+    <label><input type="checkbox" name="rotate_yz" />Rotate yz</label><br/>
+    <label><input type="checkbox" name="rotate_zw" />Rotate zw</label><br/>
+    <label><input type="checkbox" name="rotate_xz" />Rotate xz</label><br/>
+    <label><input type="checkbox" name="rotate_xw" />Rotate xw</label><br/>
+    <label><input type="checkbox" name="rotate_yw" />Rotate yw</label><br/>
+  </form>
+<div id="parcoords" class="parcoords" style="width:900px;height:220px"></div>
+<p>Rotations: </p>
+<pre id="rotations"></pre>
+</body>
+<script>
+d3.text("../data/16cell_1trunc.ascii", function(err, text) {
+  var data = Hypersolid.parseVEF(text);
+  Hypersolid.NewShape= function() {
+    return new NewShape();
+  };
+  function NewShape() {};
+  NewShape.prototype = Hypersolid.Shape(data[0],data[1],data[2]);
+  render(Hypersolid.NewShape);
+});
+
+function render(shape) {
+  var cube = shape();
+  var view = Hypersolid.Viewport(cube, document.getElementById('hypercube-canvas'), {
+    checkboxes: { 
+      perspective: { checked: true },
+      indices: { checked: false },
+      edges: { checked: true }
+    },
+    fontColor: "#ffffff",
+    lineWidth: 1,
+    scale: 4,
+    width: 400,
+    height: 400
+  });
+  view.draw();
+    
+  var pc = d3.parcoords()("#parcoords")
+    .dimensions(['x', 'y', 'z', 'w'])
+    .data([{x: -3, y: -3, z: -3, w: -3},
+           {x: 3, y: 3, z: 3, w: 3}])
+    .autoscale();
+
+  pc.ctx.foreground.lineWidth = 0.4;
+
+  pc
+    .color(color)
+    .alpha(0.4)
+    .data(cube.getVertices())
+    .createAxes()
+    .reorderable();
+
+  pointLines(cube.getVertices(), cube.getEdges());
+
+  d3.select("#rotations")
+    .text(JSON.stringify(cube.getRotations(), null, '\t'));
+
+  options = document.getElementById('hypercube-options');
+
+  d3.timer(function() {
+    if (options)
+    {
+      checkboxes = options.getElementsByTagName('input');
+    }
+    if (options.rotate_xz.checked) {
+      cube.rotate("xz", 0.008);
+    }
+    if (options.rotate_yz.checked) {
+      cube.rotate("yz", 0.008);
+    }
+    if (options.rotate_xw.checked) {
+      cube.rotate("xw", 0.008);
+    }
+    if (options.rotate_yw.checked) {
+      cube.rotate("yw", 0.008);
+    }
+    if (options.rotate_xy.checked) {
+      cube.rotate("xy", 0.008);
+    }
+    if (options.rotate_zw.checked) {
+      cube.rotate("zw", 0.008);
+    }
+    view.draw();
+  });
+
+  cube.on('rotate', function() {
+    var vertices = this.getVertices(); 
+    var edges = this.getEdges(); 
+
+    pc.data(vertices);
+    
+    // intersection points to show edges in ||-coords
+    pointLines(vertices, edges);
+
+    d3.select("#rotations")
+      .text(JSON.stringify(this.getRotations(), null, '\t'));
+  });
+
+  // Lines -> Points in Parallel Coordinates
+  function pointLines(vertices, edges) {
+    // intersection points to show edges in ||-coords
+    var dimensions = pc.dimensions();
+    var ctx = pc.ctx.highlight;
+    var canvas = pc.canvas.highlight;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var pairs = d3.parcoords.adjacent_pairs(dimensions);
+    var x = pc.xscale;
+    var y = pc.yscale;
+    edges.forEach(function(edge) {
+      var zig1 = vertices[edge[0]];
+      var zig2 = vertices[edge[1]];
+      var midpoint = average(zig1,zig2);
+      pairs.forEach(function(pair, pair_i) {
+        ctx.fillStyle = color(midpoint);
+        var dim1 = pair[0];
+        var dim2 = pair[1];
+        var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
+        var b = { x: x(dim2), y: y[dim2](zig1[dim2])};
+        var c = { x: x(dim1), y: y[dim1](zig2[dim1])};
+        var d = { x: x(dim2), y: y[dim2](zig2[dim2])};
+
+        var point = intersection(a,b,c,d);
+        var cx = point.x;
+        var cy = point.y;
+
+        if (!isNaN(cx) && !isNaN(cy)) {
+          ctx.fillRect(cx-1.5,cy-1.5,3,3);
+        }
+      });
+    });  
+  };
+
+  function intersection(a, b, c, d) {
+    return {
+      x: ((a.x * b.y - a.y * b.x) * (c.x - d.x) - (a.x - b.x) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)),
+      y: ((a.x * b.y - a.y * b.x) * (c.y - d.y) - (a.y - b.y) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x))
+    };
+  };
+
+  // color scale
+  function color(d) {
+    var z = 0.8 + 0.2 * d.z;
+    var w = 121 + Math.floor(134*(d.w));
+    return 'rgba(' + w + ',140,' + (185-Math.round(w/2)) +', ' + z + ')';
+  };
+
+  function average(p1, p2) {
+    return {
+      x: (p1.x+p2.x)/2,
+      y: (p1.y+p2.y)/2,
+      z: (p1.z+p2.z)/2,
+      w: (p1.w+p2.w)/2,
+    }
+  };
+};
+</script>
