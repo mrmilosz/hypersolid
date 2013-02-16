@@ -202,7 +202,7 @@ function pointLines(vertices, edges) {
       */
 
       if (!isNaN(cx) && !isNaN(cy)) {
-        ctx.fillRect(cx-1,cy-1,2,2);
+        ctx.fillRect(cx-1,cy-0.5,1,1);
       }
     });
   });  
@@ -218,8 +218,8 @@ function intersection(a, b, c, d) {
 // color scale
 function color(d) {
   var z = 0.8 + 0.2 * d.z;
-  var w = 151 + Math.floor(40*(d.w));
-  return "rgba(255," + w + ",0," + z + ")";
+  var w = 121 + Math.floor(70*(d.w));
+  return 'rgba(' + w + ',94,' + (125-Math.round(w/2)) +', ' + z + ')';
 };
 
 function midpoint(p1, p2) {
