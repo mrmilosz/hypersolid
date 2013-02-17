@@ -66,6 +66,9 @@ form,
     </tr>
     <tr>
       <td colspan=2>
+        An experiment in rendering all edges between adjacent axes<br/>
+        White dots - edges<br/>
+        Green dots - edges, reflected<br/>
       </td>
     </tr>
   </table>
@@ -102,7 +105,7 @@ function render(shape) {
     },
     fontColor: "#ffffff",
     lineWidth: 2,
-    scale: 4,
+    scale: 3,
     width: 400,
     height: 400
   });
@@ -202,10 +205,12 @@ function render(shape) {
         var cx = point.x;
         var cy = point.y;
 
-        ctx.fillStyle = color(midpoint);
+        //ctx.fillStyle = color(midpoint);
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
+          ctx.fillStyle = "#fff";
           ctx.fillRect(cx-1.5,cy-1.5,3,3);
         } else {
+          ctx.fillStyle = "#4f2";
           // invert point
           b.y = yInvert[dim2](zig1[dim2]);
           d.y = yInvert[dim2](zig2[dim2]);
