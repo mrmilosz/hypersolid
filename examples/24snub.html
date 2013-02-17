@@ -101,8 +101,8 @@ function render(shape) {
       edges: { checked: true }
     },
     fontColor: "#ffffff",
-    lineWidth: 0.6,
-    scale: 3.5,
+    lineWidth: 0.45,
+    scale: 4,
     width: 400,
     height: 400
   });
@@ -185,7 +185,6 @@ function render(shape) {
       var zig2 = vertices[edge[1]];
       var midpoint = average(zig1,zig2);
       pairs.forEach(function(pair, pair_i) {
-        ctx.fillStyle = color(midpoint);
         var dim1 = pair[0];
         var dim2 = pair[1];
         var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
@@ -197,7 +196,11 @@ function render(shape) {
         var cx = point.x;
         var cy = point.y;
 
-        if (!isNaN(cx) && !isNaN(cy)) {
+        if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
+          ctx.fillStyle = color(midpoint);
+          ctx.fillRect(cx-0.75,cy-0.75,1.5,1.5);
+        } else {
+          ctx.fillStyle = "rgba(255,255,255,0.2)";
           ctx.fillRect(cx-0.5,cy-0.5,1,1);
         }
       });
