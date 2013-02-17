@@ -82,7 +82,7 @@ form,
 <pre id="rotations"></pre>
 </body>
 <script>
-d3.text("../data/24cell_snub.ascii", function(err, text) {
+d3.text("../data/24cell.ascii", function(err, text) {
   var data = Hypersolid.parseVEF(text);
   Hypersolid.NewShape= function() {
     return new NewShape();
@@ -101,7 +101,7 @@ function render(shape) {
       edges: { checked: true }
     },
     fontColor: "#ffffff",
-    lineWidth: 0.45,
+    lineWidth: 2,
     scale: 4,
     width: 400,
     height: 400
@@ -202,12 +202,18 @@ function render(shape) {
         var cx = point.x;
         var cy = point.y;
 
+        ctx.fillStyle = color(midpoint);
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
-          ctx.fillStyle = color(midpoint);
-          ctx.fillRect(cx-0.75,cy-0.75,1.5,1.5);
+          ctx.fillRect(cx-1.5,cy-1.5,3,3);
         } else {
-          ctx.fillStyle = "rgba(255,255,255,0.2)";
-          ctx.fillRect(cx-0.5,cy-0.5,1,1);
+          // invert point
+          b.y = yInvert[dim2](zig1[dim2]);
+          d.y = yInvert[dim2](zig2[dim2]);
+
+          point = intersection(a,b,c,d);
+          cx = point.x;
+          cy = point.y;
+          ctx.fillRect(cx-1.5,cy-1.5,3,3);
         }
       });
     });  
