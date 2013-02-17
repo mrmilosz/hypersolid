@@ -178,8 +178,9 @@ function render(shape) {
     var dimensions = pc.dimensions();
     var ctx = pc.ctx.highlight;
     var canvas = pc.canvas.highlight;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = "rgba(0,0,0,0.1)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
     var pairs = d3.parcoords.adjacent_pairs(dimensions);
     var x = pc.xscale;
     var y = pc.yscale;
@@ -207,10 +208,10 @@ function render(shape) {
 
         //ctx.fillStyle = color(midpoint);
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(cx-1.5,cy-1.5,3,3);
+          ctx.fillStyle = "#fed";
+          ctx.fillRect(cx-1,cy-1,2,2);
         } else {
-          ctx.fillStyle = "#4f2";
+          ctx.fillStyle = "#2f1";
           // invert point
           b.y = yInvert[dim2](zig1[dim2]);
           d.y = yInvert[dim2](zig2[dim2]);
@@ -218,7 +219,7 @@ function render(shape) {
           point = intersection(a,b,c,d);
           cx = point.x;
           cy = point.y;
-          ctx.fillRect(cx-1.5,cy-1.5,3,3);
+          ctx.fillRect(cx-1,cy-1,2,2);
         }
       });
     });  
