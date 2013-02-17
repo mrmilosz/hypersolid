@@ -190,12 +190,6 @@ function render(shape) {
     var pairs = d3.parcoords.adjacent_pairs(dimensions);
     var x = pc.xscale;
     var y = pc.yscale;
-    var yInvert = {};
-    for (k in y) {
-      var scale = y[k];
-      var domain = y[k].domain();
-      yInvert[k] = scale.copy().domain([domain[1],domain[0]]);
-    }
     edges.forEach(function(edge) {
       var zig1 = vertices[edge[0]];
       var zig2 = vertices[edge[1]];
@@ -219,10 +213,8 @@ function render(shape) {
         } else {
           ctx.fillStyle = "#2f1";
           // invert point
-          b.y = yInvert[dim2](zig1[dim2]);
-          d.y = yInvert[dim2](zig2[dim2]);
 
-          point = intersection(a,b,c,d);
+          point = intersection(c,b,a,d);
           cx = point.x;
           cy = point.y;
           ctx.fillRect(cx-1,cy-1,2,2);
