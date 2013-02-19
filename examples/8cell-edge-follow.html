@@ -66,9 +66,6 @@ form,
     </tr>
     <tr>
       <td colspan=2>
-        An experiment in rendering all edges between adjacent axes<br/>
-        White dots - edges<br/>
-        Green dots - edges, reflected<br/>
       </td>
     </tr>
   </table>
@@ -85,9 +82,7 @@ form,
 <pre id="rotations"></pre>
 </body>
 <script>
-var intersection = d3.parcoords.intersection;
-
-d3.text("../data/24cell.ascii", function(err, text) {
+d3.text("../data/8cell.ascii", function(err, text) {
   var data = Hypersolid.parseVEF(text);
   data[0].forEach(function(d) {
     d.x += 2;
@@ -113,7 +108,7 @@ function render(shape) {
     },
     fontColor: "#ffffff",
     lineWidth: 2,
-    scale: 4,
+    scale: 2.7,
     width: 400,
     height: 400
   });
@@ -128,7 +123,7 @@ function render(shape) {
   pc.ctx.foreground.lineWidth = 0.4;
 
   pc
-    .color(color)
+    .color("transparent")
     .alpha(0.4)
     .data(cube.getVertices())
     .createAxes()
@@ -186,16 +181,20 @@ function render(shape) {
     var dimensions = pc.dimensions();
     var ctx = pc.ctx.highlight;
     var canvas = pc.canvas.highlight;
-    ctx.fillStyle = "rgba(0,0,0,0.07)";
+    ctx.fillStyle = "rgba(0,0,0,0.03)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     var pairs = d3.parcoords.adjacent_pairs(dimensions);
     var x = pc.xscale;
     var y = pc.yscale;
-    edges.forEach(function(edge) {
+    edges.forEach(function(edge,i) {
       var zig1 = vertices[edge[0]];
       var zig2 = vertices[edge[1]];
       var midpoint = average(zig1,zig2);
       pairs.forEach(function(pair, pair_i) {
+        ctx.fillStyle = "rgba(255,255,255,0.2)";
+        if (i==20) ctx.fillStyle = "red";
+        if (i==14) ctx.fillStyle = "green";
+        if (i==27) ctx.fillStyle = "yellow";
         var dim1 = pair[0];
         var dim2 = pair[1];
         var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
@@ -207,28 +206,30 @@ function render(shape) {
         var cx = point.x;
         var cy = point.y;
 
-        //ctx.fillStyle = color(midpoint);
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
-          ctx.fillStyle = "#fed";
-          ctx.fillRect(cx-1,cy-1,2,2);
+          ctx.fillRect(cx-1.5,cy-1.5,3,3);
         } else {
-          ctx.fillStyle = "#2f1";
-          // invert point
-
+          ctx.fillRect(cx-1.5,cy-1.5,3,3);
           point = intersection(c,b,a,d);
           cx = point.x;
           cy = point.y;
-          ctx.fillRect(cx-1,cy-1,2,2);
+          ctx.fillRect(cx-0.5,cy-0.5,1,1);
         }
       });
     });  
   };
 
+  function intersection(a, b, c, d) {
+    return {
+      x: ((a.x * b.y - a.y * b.x) * (c.x - d.x) - (a.x - b.x) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)),
+      y: ((a.x * b.y - a.y * b.x) * (c.y - d.y) - (a.y - b.y) * (c.x * d.y - c.y * d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x))
+    };
+  };
+
   // color scale
   function color(d) {
-    var z = 0.8 + 0.2 * d.z;
     var w = 121 + Math.floor(134*(d.w));
-    return 'rgba(' + w + ',140,' + (185-Math.round(w/2)) +', ' + z + ')';
+    return 'rgb(' + w + ',140,' + (185-Math.round(w/2)) +')';
   };
 
   function average(p1, p2) {

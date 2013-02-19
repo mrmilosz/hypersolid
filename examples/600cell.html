@@ -84,6 +84,12 @@ form,
 <script>
 d3.text("../data/600cell.ascii", function(err, text) {
   var data = Hypersolid.parseVEF(text);
+  data[0].forEach(function(d) {
+    d.x += 2;
+    d.w += 2;
+    d.y -= 2;
+    d.z -= 2;
+  });
   Hypersolid.NewShape= function() {
     return new NewShape();
   };
@@ -102,7 +108,7 @@ function render(shape) {
     },
     fontColor: "#ffffff",
     lineWidth: 0.5,
-    scale: 2.7,
+    scale: 4,
     width: 400,
     height: 400
   });
@@ -110,8 +116,8 @@ function render(shape) {
     
   var pc = d3.parcoords()("#parcoords")
     .dimensions(['x', 'y', 'z', 'w'])
-    .data([{x: -3, y: -3, z: -3, w: -3},
-           {x: 3, y: 3, z: 3, w: 3}])
+    .data([{x: -6, y: -6, z: -6, w: -6},
+           {x: 6, y: 6, z: 6, w: 6}])
     .autoscale();
 
   pc.ctx.foreground.lineWidth = 0.4;
@@ -196,7 +202,12 @@ function render(shape) {
         var cx = point.x;
         var cy = point.y;
 
-        if (!isNaN(cx) && !isNaN(cy)) {
+        if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
+          ctx.fillRect(cx-1,cy-1,2,2);
+        } else {
+          point = intersection(c,b,a,d);
+          cx = point.x;
+          cy = point.y;
           ctx.fillRect(cx-0.5,cy-0.5,1,1);
         }
       });
@@ -212,9 +223,8 @@ function render(shape) {
 
   // color scale
   function color(d) {
-    var z = 0.8 + 0.2 * d.z;
     var w = 121 + Math.floor(134*(d.w));
-    return 'rgba(' + w + ',140,' + (185-Math.round(w/2)) +', ' + z + ')';
+    return 'rgb(' + w + ',140,' + (185-Math.round(w/2)) +')';
   };
 
   function average(p1, p2) {
