@@ -77,19 +77,14 @@ form,
     <label><input type="checkbox" name="rotate_xw" />Rotate xw</label><br/>
     <label><input type="checkbox" name="rotate_yw" />Rotate yw</label><br/>
   </form>
-<div id="parcoords" class="parcoords" style="width:900px;height:220px"></div>
+<div id="parcoords" class="parcoords" style="width:900px;height:200px"></div>
+<div id="parcoords2" class="parcoords" style="width:900px;height:200px"></div>
 <p>Rotations: </p>
 <pre id="rotations"></pre>
 </body>
 <script>
 d3.text("../data/600cell.ascii", function(err, text) {
   var data = Hypersolid.parseVEF(text);
-  data[0].forEach(function(d) {
-    d.x += 2;
-    d.w += 2;
-    d.y -= 2;
-    d.z -= 2;
-  });
   Hypersolid.NewShape= function() {
     return new NewShape();
   };
@@ -108,7 +103,7 @@ function render(shape) {
     },
     fontColor: "#ffffff",
     lineWidth: 0.5,
-    scale: 4,
+    scale: 3,
     width: 400,
     height: 400
   });
@@ -116,18 +111,30 @@ function render(shape) {
     
   var pc = d3.parcoords()("#parcoords")
     .dimensions(['x', 'y', 'z', 'w'])
-    .data([{x: -6, y: -6, z: -6, w: -6},
-           {x: 6, y: 6, z: 6, w: 6}])
+    .data([{x: -2.5, y: -2.5, z: -2.5, w: -2.5},
+           {x: 2.5, y: 2.5, z: 2.5, w: 2.5}])
     .autoscale();
 
-  pc.ctx.foreground.lineWidth = 0.4;
-
   pc
-    .color(color)
+    .color("transparent")
     .alpha(0.4)
     .data(cube.getVertices())
     .createAxes()
     .reorderable();
+    
+  var pc2 = d3.parcoords()("#parcoords2")
+    .dimensions(['x', 'y', 'z', 'w'])
+    .data([{x: -2.5, y: -2.5, z: -2.5, w: -2.5},
+           {x: 2.5, y: 2.5, z: 2.5, w: 2.5}])
+    .autoscale();
+
+  pc2
+    .color("transparent")
+    .alpha(0.4)
+    .data(cube.getVertices())
+    .createAxes()
+    .reorderable();
+
 
   pointLines(cube.getVertices(), cube.getEdges());
 
@@ -181,7 +188,10 @@ function render(shape) {
     var dimensions = pc.dimensions();
     var ctx = pc.ctx.highlight;
     var canvas = pc.canvas.highlight;
+    var ctx2 = pc2.ctx.highlight;
+    var canvas2 = pc2.canvas.highlight;
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx2.clearRect(0,0,canvas2.width,canvas2.height);
     var pairs = d3.parcoords.adjacent_pairs(dimensions);
     var x = pc.xscale;
     var y = pc.yscale;
@@ -190,7 +200,6 @@ function render(shape) {
       var zig2 = vertices[edge[1]];
       var midpoint = average(zig1,zig2);
       pairs.forEach(function(pair, pair_i) {
-        ctx.fillStyle = color(midpoint);
         var dim1 = pair[0];
         var dim2 = pair[1];
         var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
@@ -203,12 +212,14 @@ function render(shape) {
         var cy = point.y;
 
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
+          ctx.fillStyle = color(midpoint);
           ctx.fillRect(cx-1,cy-1,2,2);
         } else {
+          ctx2.fillStyle = color(midpoint);
           point = intersection(c,b,a,d);
           cx = point.x;
           cy = point.y;
-          ctx.fillRect(cx-0.5,cy-0.5,1,1);
+          ctx2.fillRect(cx-1,cy-1,2,2);
         }
       });
     });  
