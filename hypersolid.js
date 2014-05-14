@@ -1,6 +1,5 @@
 /*
  * Hypersolid, Four-dimensional solid viewer
- *  The MIT License (MIT)
  * 
  * Copyright (c) 2014 Milosz Kosmider <milosz@milosz.ca>
  * 
