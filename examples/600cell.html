@@ -199,26 +199,25 @@ function render(shape) {
       var zig1 = vertices[edge[0]];
       var zig2 = vertices[edge[1]];
       var midpoint = average(zig1,zig2);
+      ctx.fillStyle = color(midpoint);
+      ctx2.fillStyle = color(midpoint);
       pairs.forEach(function(pair, pair_i) {
         var dim1 = pair[0];
         var dim2 = pair[1];
-        var a = { x: x(dim1), y: y[dim1](zig1[dim1])};
-        var b = { x: x(dim2), y: y[dim2](zig1[dim2])};
-        var c = { x: x(dim1), y: y[dim1](zig2[dim1])};
-        var d = { x: x(dim2), y: y[dim2](zig2[dim2])};
+        var x1 = x(dim1);
+        var x2 = x(dim2);
+        var a = { x: x1, y: y[dim1](zig1[dim1])};
+        var b = { x: x2, y: y[dim2](zig1[dim2])};
+        var c = { x: x1, y: y[dim1](zig2[dim1])};
+        var d = { x: x2, y: y[dim2](zig2[dim2])};
 
         var point = intersection(a,b,c,d);
         var cx = point.x;
         var cy = point.y;
 
         if (!isNaN(cx) && !isNaN(cy) && cx > x(dim1) && cx < x(dim2)) {
-          ctx.fillStyle = color(midpoint);
           ctx.fillRect(cx-1,cy-1,2,2);
         } else {
-          ctx2.fillStyle = color(midpoint);
-          point = intersection(c,b,a,d);
-          cx = point.x;
-          cy = point.y;
           ctx2.fillRect(cx-1,cy-1,2,2);
         }
       });
